@@ -2,6 +2,8 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
 import { Zap, Menu, X, User, LogOut, LayoutDashboard, Shield } from 'lucide-react'
 import { useState } from 'react'
+import ziplogicLogo from "../images/ziplogic.png";
+
 
 export default function Navbar() {
   const { isAuthenticated, user, logout } = useAuthStore()
@@ -20,9 +22,9 @@ export default function Navbar() {
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             <Link to="/" className="flex items-center gap-2 text-xl font-bold">
-              <Zap className="w-8 h-8 text-primary-500" />
-              <span className="gradient-text">ZipLogic</span>
-            </Link>
+  <img src={ziplogicLogo} alt="ZipLogic AI" width="45" height="32" className="rounded-lg" />
+ <span className="bg-gradient-to-r from-[#00ff88] to-[#00ddff] bg-clip-text text-transparent">ZipLogic AI</span>
+</Link>
           </div>
           
           <div className="hidden md:flex items-center gap-6">

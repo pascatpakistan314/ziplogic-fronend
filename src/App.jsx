@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { useAuthStore } from './store/authStore'
 
 // Layout
@@ -22,6 +22,9 @@ import AdminProjects from './pages/admin/Projects'
 import AdminPayments from './pages/admin/Payments'
 import AdminLicenses from './pages/admin/Licenses'
 import AdminSettings from './pages/admin/Settings'
+import CommandCenter from './pages/CommandCenter'
+
+
 
 // Protected Route wrapper
 function ProtectedRoute({ children }) {
@@ -61,14 +64,20 @@ function PublicRoute({ children }) {
 }
 
 function App() {
+  const location = useLocation();
+  const isLandingPage = location.pathname === '/';
+
   return (
     <div className="min-h-screen flex flex-col">
-      <Navbar />
+ 
+      {!isLandingPage && <Navbar />}
+      
       <main className="flex-1">
         <Routes>
           {/* Public routes */}
           <Route path="/" element={<Landing />} />
           <Route path="/pricing" element={<Pricing />} />
+          <Route path="/privacy" element={<CommandCenter />} />
           
           {/* Auth routes */}
           <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
@@ -92,7 +101,7 @@ function App() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
-      <Footer />
+      {!isLandingPage && <Footer />}
     </div>
   )
 }
