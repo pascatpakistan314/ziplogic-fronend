@@ -11,6 +11,7 @@ export default function Navbar() {
   const [userMenuOpen, setUserMenuOpen] = useState(false)
   const navigate = useNavigate()
   
+  
   const handleLogout = async () => {
     await logout()
     navigate('/')
