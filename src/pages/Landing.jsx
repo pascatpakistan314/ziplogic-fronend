@@ -1,12 +1,12 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { paymentsAPI } from "../services/api";
-import { useAuthStore } from "../store/authStore";
+import { subscriptionsAPI } from "../services/api";
+import { useAuthStore } from '../services/authStore';
 import ziplogicLogo from "../images/ziplogic.png";
 
-/* ──────────────────────────────────────────────
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
    FAQ sub-component
-   ────────────────────────────────────────────── */
+   â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function FaqItem({ q, a }) {
   const [open, setOpen] = useState(false);
   return (
@@ -32,9 +32,9 @@ function FaqItem({ q, a }) {
   );
 }
 
-/* ──────────────────────────────────────────────
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
    LANDING PAGE
-   ────────────────────────────────────────────── */
+   â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 export default function Landing() {
   const navigate = useNavigate();
   const { isAuthenticated, token } = useAuthStore();
@@ -51,8 +51,12 @@ export default function Landing() {
 
   const [payLoading, setPayLoading] = useState({ plan: null, error: null });
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  
+  // Plans from API
+  const [plans, setPlans] = useState([]);
+  const [plansLoading, setPlansLoading] = useState(true);
 
-  // ── Minimal CSS that Tailwind can't cover (animations, CSS vars, pseudo-elements) ──
+  // â”€â”€ Minimal CSS that Tailwind can't cover (animations, CSS vars, pseudo-elements) â”€â”€
   const css = useMemo(
     () => `
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
@@ -116,7 +120,7 @@ body{font-family:'Rajdhani',sans-serif;background:var(--bg);color:var(--text-pri
 .tl{opacity:0;animation:tlFade .4s forwards}
 .tl:nth-child(1){animation-delay:.8s}.tl:nth-child(2){animation-delay:1.5s}.tl:nth-child(3){animation-delay:2.2s}
 .tl:nth-child(4){animation-delay:3s}.tl:nth-child(5){animation-delay:3.8s}.tl:nth-child(6){animation-delay:4.5s}.tl:nth-child(7){animation-delay:5.2s}
-.cursor-b::after{content:'█';animation:cBlink 1s step-end infinite;color:#00ff88}
+.cursor-b::after{content:'â–ˆ';animation:cBlink 1s step-end infinite;color:#00ff88}
 .right-item{opacity:0;animation:rPop .3s forwards}
 .right-item:nth-child(2){animation-delay:5.5s}.right-item:nth-child(3){animation-delay:5.8s}
 .right-item:nth-child(4){animation-delay:6.1s}.right-item:nth-child(5){animation-delay:6.4s}.right-item:nth-child(6){animation-delay:6.7s}
@@ -186,7 +190,7 @@ nav.scrolled{background:var(--nav-bg-scroll)!important;box-shadow:0 4px 40px rgb
     []
   );
 
-  /* ─── Helpers ─── */
+  /* â”€â”€â”€ Helpers â”€â”€â”€ */
   const toggleTheme = () => setTheme((t) => (t === "dark" ? "light" : "dark"));
   const go = (path) => navigate(path);
   const scrollToId = (id) => {
@@ -209,13 +213,13 @@ nav.scrolled{background:var(--nav-bg-scroll)!important;box-shadow:0 4px 40px rgb
     navigate(path);
   };
 
-  /* ─── Stripe checkout ─── */
-  const startCheckout = async (plan) => {
-    setPayLoading({ plan, error: null });
+  /* â”€â”€â”€ Stripe checkout â”€â”€â”€ */
+  const startCheckout = async (planId, planSlug) => {
+    setPayLoading({ plan: planSlug, error: null });
 
     if (!isAuthenticated || !token) {
       try {
-        localStorage.setItem("post_login_intent", JSON.stringify({ type: "checkout", plan }));
+        localStorage.setItem("post_login_intent", JSON.stringify({ type: "checkout", plan: planSlug, plan_id: planId }));
       } catch {}
       go("/login");
       setPayLoading({ plan: null, error: null });
@@ -223,26 +227,27 @@ nav.scrolled{background:var(--nav-bg-scroll)!important;box-shadow:0 4px 40px rgb
     }
 
     try {
-      const res = await paymentsAPI.createCheckout(
-        { plan },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const res = await subscriptionsAPI.createCheckout({
+        plan_id: planId,
+        billing_cycle: 'monthly',
+        success_url: `${window.location.origin}/dashboard?payment=success`,
+        cancel_url: `${window.location.origin}/pricing?payment=cancelled`
+      });
       const data = res?.data;
-      const ok = data?.success;
-      const checkoutUrl = data?.checkout_url || data?.data?.checkout_url;
-      if (!ok || !checkoutUrl) throw new Error(data?.message || "Checkout URL missing");
+      const checkoutUrl = data?.url;
+      if (!checkoutUrl) throw new Error(data?.error || "Checkout URL missing");
       window.location.href = checkoutUrl;
     } catch (err) {
       const msg =
+        err?.response?.data?.error ||
         err?.response?.data?.message ||
-        err?.response?.data?.errors ||
         err?.message ||
         "Failed to start checkout";
       setPayLoading({ plan: null, error: String(msg) });
     }
   };
 
-  /* ─── Theme apply ─── */
+  /* â”€â”€â”€ Theme apply â”€â”€â”€ */
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
     localStorage.setItem("ziplogic-theme", theme);
@@ -253,22 +258,107 @@ nav.scrolled{background:var(--nav-bg-scroll)!important;box-shadow:0 4px 40px rgb
     return () => { document.body.style.overflow = ""; };
   }, [mobileMenuOpen]);
 
-  /* ─── Auto checkout after login redirect ─── */
+  /* â”€â”€â”€ Auto checkout after login redirect â”€â”€â”€ */
   useEffect(() => {
     if (!isAuthenticated || !token) return;
     try {
       const raw = localStorage.getItem("post_login_intent");
       if (!raw) return;
       const intent = JSON.parse(raw);
-      if (intent?.type === "checkout" && intent?.plan) {
+      if (intent?.type === "checkout" && intent?.plan_id) {
         localStorage.removeItem("post_login_intent");
-        startCheckout(intent.plan);
+        startCheckout(intent.plan_id, intent.plan);
       }
     } catch {}
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated, token]);
 
-  /* ─── Particles ─── */
+  /* â”€â”€â”€ Fetch plans from API â”€â”€â”€ */
+  useEffect(() => {
+    const fetchPlans = async () => {
+      console.log('[Landing] Starting to fetch plans...');
+      try {
+        const response = await subscriptionsAPI.getPlans();
+        console.log('[Landing] Plans API Response:', response);
+        console.log('[Landing] Response data:', response.data);
+        
+        // Handle paginated response (results) or direct array
+        let apiPlans = [];
+        if (response.data && Array.isArray(response.data.results)) {
+          apiPlans = response.data.results;
+          console.log('[Landing] Using paginated results:', apiPlans.length, 'plans');
+        } else if (Array.isArray(response.data)) {
+          apiPlans = response.data;
+          console.log('[Landing] Using direct array:', apiPlans.length, 'plans');
+        } else {
+          console.warn('[Landing] Unexpected API response format:', response.data);
+        }
+        
+        // Transform API data to match component structure
+        const transformedPlans = apiPlans.map(plan => ({
+          id: plan.id,
+          name: plan.name,
+          slug: plan.slug,
+          price_monthly: parseFloat(plan.price_monthly) || 0,
+          price_yearly: parseFloat(plan.price_yearly) || 0,
+          description: plan.description || '',
+          max_projects: plan.max_projects || 1,
+          features: Array.isArray(plan.features) ? plan.features : [],
+          is_popular: plan.is_popular || false,
+          support_level: plan.support_level || 'Community',
+          team_seats: plan.team_seats || 1,
+          max_ai_builds_per_month: plan.max_ai_builds_per_month || 5,
+        }));
+        
+        console.log('[Landing] Setting plans state with:', transformedPlans.length, 'plans');
+        setPlans(transformedPlans);
+      } catch (error) {
+        console.error('[Landing] Failed to fetch plans:', error);
+        console.error('[Landing] Error details:', error.message);
+        if (error.response) {
+          console.error('[Landing] Error response:', error.response.data);
+        }
+      } finally {
+        setPlansLoading(false);
+        console.log('[Landing] Plans loading finished');
+      }
+    };
+    fetchPlans();
+  }, []);
+
+  /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+     WEBCONTAINER PRE-BOOT - Makes NewProject page instant!
+     Boot WebContainer in background while user reads landing page
+     â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      // Skip if already booted or booting
+      if (window.__webContainerInstance || window.__webContainerBooting) {
+        console.log('[Landing] WebContainer already ready/booting');
+        return;
+      }
+      
+      // Dynamically import and boot WebContainer
+      import('@webcontainer/api').then(wc => {
+        console.log('[Landing] ðŸš€ Pre-booting WebContainer in background...');
+        window.__webContainerBooting = wc.WebContainer.boot().then(instance => {
+          window.__webContainerInstance = instance;
+          window.__webContainerBooting = null;
+          console.log('[Landing] âœ… WebContainer pre-booted & cached!');
+          return instance;
+        }).catch(err => {
+          window.__webContainerBooting = null;
+          console.log('[Landing] WebContainer boot skipped:', err.message);
+        });
+      }).catch(() => {
+        console.log('[Landing] WebContainer API not available');
+      });
+    }, 3000);  // Wait 3 seconds after page load
+    
+    return () => clearTimeout(timer);
+  }, []);
+
+  /* â”€â”€â”€ Particles â”€â”€â”€ */
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -327,7 +417,7 @@ nav.scrolled{background:var(--nav-bg-scroll)!important;box-shadow:0 4px 40px rgb
     return () => { cancelAnimationFrame(rafRef.current); window.removeEventListener("resize", onResize); window.removeEventListener("mousemove", onMove); };
   }, [theme]);
 
-  /* ─── Scroll, Reveal, Alien Eyes, Blink ─── */
+  /* â”€â”€â”€ Scroll, Reveal, Alien Eyes, Blink â”€â”€â”€ */
   useEffect(() => {
     const onScroll = () => {
       const nav = document.getElementById("mainNav");
@@ -340,7 +430,29 @@ nav.scrolled{background:var(--nav-bg-scroll)!important;box-shadow:0 4px 40px rgb
     document.querySelectorAll(".reveal").forEach((el) => obs.observe(el));
     window.addEventListener("scroll", onScroll, { passive: true });
     onScroll();
+    
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      obs.disconnect();
+    };
+  }, []);
+  
+  /* â”€â”€â”€ Re-observe reveal elements when plans load â”€â”€â”€ */
+  useEffect(() => {
+    if (!plansLoading && plans.length > 0) {
+      console.log('[Landing] Re-observing reveal elements after plans load');
+      const obs = new IntersectionObserver(
+        (entries) => entries.forEach((e) => e.isIntersecting && e.target.classList.add("vis")),
+        { threshold: 0.08, rootMargin: "0px 0px -40px 0px" }
+      );
+      // Only observe reveal elements in the pricing section
+      document.querySelectorAll("#pricing .reveal").forEach((el) => obs.observe(el));
+      return () => obs.disconnect();
+    }
+  }, [plansLoading, plans]);
 
+  /* â”€â”€â”€ Alien Eyes Animation â”€â”€â”€ */
+  useEffect(() => {
     const eyeL = document.getElementById("eyeL");
     const eyeR = document.getElementById("eyeR");
     const pupilGroup = document.getElementById("pupilGroup");
@@ -379,16 +491,14 @@ nav.scrolled{background:var(--nav-bg-scroll)!important;box-shadow:0 4px 40px rgb
     }, 2500 + Math.random() * 2000);
 
     return () => {
-      window.removeEventListener("scroll", onScroll);
       window.removeEventListener("mousemove", onEyeMove);
       clearInterval(blinkTimer); clearInterval(smileTimer); clearInterval(miniBlinkTimer);
-      obs.disconnect();
     };
   }, []);
 
-  /* ──────────────────────────────────────────────
+  /* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
      RENDER
-     ────────────────────────────────────────────── */
+     â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: css }} />
@@ -478,9 +588,9 @@ nav.scrolled{background:var(--nav-bg-scroll)!important;box-shadow:0 4px 40px rgb
         </svg>
       ))}
 
-      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
           NAV
-         â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
+         â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
       <nav
         id="mainNav"
         className="fixed top-0 left-0 right-0 z-[100] px-8 h-[72px] flex items-center justify-between backdrop-blur-[24px] border-b transition-all duration-300"
@@ -516,7 +626,7 @@ nav.scrolled{background:var(--nav-bg-scroll)!important;box-shadow:0 4px 40px rgb
             aria-label="Toggle theme"
             onClick={toggleTheme}
           >
-            {theme === "light" ? "☀ï¸" : "🌙"}
+            {theme === "light" ? "â˜€ï¸" : "ðŸŒ™"}
           </button>
 
           <button
@@ -525,7 +635,7 @@ nav.scrolled{background:var(--nav-bg-scroll)!important;box-shadow:0 4px 40px rgb
             type="button"
             onClick={() => go(isAuthenticated ? "/dashboard" : "/login")}
           >
-            OPEN APP →
+            OPEN APP â†’
           </button>
         
 
@@ -585,14 +695,14 @@ nav.scrolled{background:var(--nav-bg-scroll)!important;box-shadow:0 4px 40px rgb
         </div>
       </div>
 
-{/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+{/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
           HERO
-         â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
+         â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
       <section className="relative z-10 min-h-screen flex flex-col items-center justify-center pt-[120px] pb-20 px-8 text-center">
         {/* Badge */}
         <div className="inline-flex items-center gap-2 px-[18px] py-1.5 bg-[rgba(0,255,136,0.08)] border border-[rgba(0,255,136,0.15)] rounded-[30px] font-[Space_Mono,monospace] text-[0.68rem] text-[var(--green)] tracking-[2px] mb-8" style={{ animation: "fadeInUp 0.8s ease both" }}>
           <span className="w-1.5 h-1.5 rounded-full bg-[var(--green)]" style={{ animation: "blink 1.5s infinite" }} />
-          BETA LIVE — BUILDING THE FUTURE
+          BETA LIVE â€” BUILDING THE FUTURE
         </div>
 
         {/* Alien mascot */}
@@ -680,12 +790,12 @@ nav.scrolled{background:var(--nav-bg-scroll)!important;box-shadow:0 4px 40px rgb
             <div className="terminal-body grid grid-cols-2 min-h-[280px]">
               <div className="terminal-left p-[22px_24px] border-r border-white/[0.06] font-[Space_Mono,monospace] text-[0.75rem] leading-8">
                 <div className="tl"><span className="text-white/[0.35]">$</span> <span className="text-[#00ff88]">ziplogic</span> <span className="text-white/85">generate</span></div>
-                <div className="tl"><span className="text-white/[0.35]">›</span> <span className="text-[#00ddff]">Analyzing requirements...</span></div>
-                <div className="tl"><span className="text-white/[0.35]">›</span> <span className="text-white/85">Planning architecture</span></div>
-                <div className="tl"><span className="text-white/[0.35]">›</span> <span className="text-[#00ff88]">✓</span> <span className="text-white/85">React frontend scaffolded</span></div>
-                <div className="tl"><span className="text-white/[0.35]">›</span> <span className="text-[#00ff88]">✓</span> <span className="text-white/85">API routes generated</span></div>
-                <div className="tl"><span className="text-white/[0.35]">›</span> <span className="text-[#00ff88]">✓</span> <span className="text-white/85">Database models created</span></div>
-                <div className="tl"><span className="text-white/[0.35]">›</span> <span className="text-[#00ff88]">✓ Build complete</span> <span className="text-white/[0.35]">— 47s</span><span className="cursor-b"></span></div>
+                <div className="tl"><span className="text-white/[0.35]">â€º</span> <span className="text-[#00ddff]">Analyzing requirements...</span></div>
+                <div className="tl"><span className="text-white/[0.35]">â€º</span> <span className="text-white/85">Planning architecture</span></div>
+                <div className="tl"><span className="text-white/[0.35]">â€º</span> <span className="text-[#00ff88]">âœ“</span> <span className="text-white/85">React frontend scaffolded</span></div>
+                <div className="tl"><span className="text-white/[0.35]">â€º</span> <span className="text-[#00ff88]">âœ“</span> <span className="text-white/85">API routes generated</span></div>
+                <div className="tl"><span className="text-white/[0.35]">â€º</span> <span className="text-[#00ff88]">âœ“</span> <span className="text-white/85">Database models created</span></div>
+                <div className="tl"><span className="text-white/[0.35]">â€º</span> <span className="text-[#00ff88]">âœ“ Build complete</span> <span className="text-white/[0.35]">â€” 47s</span><span className="cursor-b"></span></div>
               </div>
               <div className="p-[22px_24px] font-[Space_Mono,monospace] text-[0.75rem]">
                 <div className="text-[0.65rem] text-white/[0.35] tracking-[2px] mb-3.5">AGENT_NETWORK</div>
@@ -694,7 +804,7 @@ nav.scrolled{background:var(--nav-bg-scroll)!important;box-shadow:0 4px 40px rgb
                 <div className="right-item flex items-center gap-2.5 py-1.5 text-white/70"><span className="w-2 h-2 rounded-full bg-[#00ff88] shadow-[0_0_8px_#00ff88]" /><span className="text-white/85">Full build validated</span></div>
                 <div className="right-item flex items-center gap-2.5 py-1.5 text-white/70"><span className="w-2 h-2 rounded-full bg-[#8844ff] shadow-[0_0_8px_#8844ff]" /><span className="text-white/85">Deploy-ready application</span></div>
                 <div className="right-item flex items-center gap-2.5 py-1.5 text-white/70 mt-4" style={{ animationDelay: "7.2s" }}>
-                  <span className="text-white/[0.35] text-[0.68rem]">INFO: Deploy to production — npm run build.</span>
+                  <span className="text-white/[0.35] text-[0.68rem]">INFO: Deploy to production â€” npm run build.</span>
                 </div>
               </div>
             </div>
@@ -716,9 +826,9 @@ nav.scrolled{background:var(--nav-bg-scroll)!important;box-shadow:0 4px 40px rgb
         </div>
       </section>
 
-      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
           HOW IT WORKS
-         â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
+         â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
       <section id="how-it-works" className="relative z-10 py-[120px] px-8">
         <div className="text-center">
           <div className="font-[Space_Mono,monospace] text-[0.7rem] text-[var(--green)] tracking-[3px] mb-3 opacity-80 reveal">// EXECUTION_PIPELINE</div>
@@ -729,8 +839,8 @@ nav.scrolled{background:var(--nav-bg-scroll)!important;box-shadow:0 4px 40px rgb
         <div className="pipeline-grid max-w-[1100px] mx-auto mt-16 grid grid-cols-3 gap-8 relative">
           <div className="pipeline-line absolute top-[55px] left-[16%] right-[16%] h-[2px]" style={{ background: "linear-gradient(90deg,transparent,var(--green),var(--cyan),var(--purple),transparent)", opacity: 0.2 }} />
           {[
-            { n: "01", cls: "n1", title: "PLANNER", desc: "Analyzes your prompt. Maps requirements to architecture, decides tech stack, and produces a structured build plan — before a single line of code is written.", bg: "rgba(0,255,136,0.1)", color: "var(--green)", border: "rgba(0,255,136,0.2)" },
-            { n: "02", cls: "n2", title: "DEVELOPER", desc: "Generates production-grade code file by file — frontend, backend, database schemas, auth, and API routes. Streamed to you in real time via WebSocket.", bg: "rgba(0,221,255,0.1)", color: "var(--cyan)", border: "rgba(0,221,255,0.2)" },
+            { n: "01", cls: "n1", title: "PLANNER", desc: "Analyzes your prompt. Maps requirements to architecture, decides tech stack, and produces a structured build plan â€” before a single line of code is written.", bg: "rgba(0,255,136,0.1)", color: "var(--green)", border: "rgba(0,255,136,0.2)" },
+            { n: "02", cls: "n2", title: "DEVELOPER", desc: "Generates production-grade code file by file â€” frontend, backend, database schemas, auth, and API routes. Streamed to you in real time via WebSocket.", bg: "rgba(0,221,255,0.1)", color: "var(--cyan)", border: "rgba(0,221,255,0.2)" },
             { n: "03", cls: "n3", title: "EXECUTOR", desc: "Spins up a Docker container, installs dependencies, runs your project, and gives you a live preview link. Fully reproducible. Every time.", bg: "rgba(136,68,255,0.1)", color: "var(--purple)", border: "rgba(136,68,255,0.2)" },
           ].map((c, i) => (
             <div key={c.n} className={`text-center p-12 px-8 rounded-[20px] transition-all duration-400 hover:-translate-y-2 hover:shadow-[0_25px_70px_var(--card-shadow)] border reveal reveal-d${i + 1}`} style={{ background: "var(--surface)", borderColor: "var(--border)" }}>
@@ -742,9 +852,9 @@ nav.scrolled{background:var(--nav-bg-scroll)!important;box-shadow:0 4px 40px rgb
         </div>
       </section>
 
-      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
           FEATURES
-         â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
+         â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
       <section id="features" className="relative z-10 py-[120px] px-8">
         <div className="text-center">
           <div className="font-[Space_Mono,monospace] text-[0.7rem] text-[var(--green)] tracking-[3px] mb-3 opacity-80 reveal">// SYSTEM_CAPABILITIES</div>
@@ -754,12 +864,12 @@ nav.scrolled{background:var(--nav-bg-scroll)!important;box-shadow:0 4px 40px rgb
 
         <div className="features-grid max-w-[1100px] mx-auto mt-16 grid grid-cols-2 gap-6">
           {[
-            { icon: "⚡", title: "FULL APPLICATION GENERATION", desc: "From a single prompt to a complete working application — frontend views, backend logic, database, and authentication. Not scaffolding. Real code." },
-            { icon: "📡", title: "REAL-TIME STREAMING", desc: "Watch your application being built live. Every file streams via WebSocket — you see exactly what's being generated, as it happens." },
-            { icon: "🧠", title: "MULTI-AGENT ARCHITECTURE", desc: "Three specialized AI agents collaborate: the Planner architects, the Developer codes, the Executor runs. Each optimized for its job." },
-            { icon: "🐳", title: "INSTANT DOCKER PREVIEW", desc: "Every project runs in an isolated Docker container. See your working app within seconds. No local setup required." },
-            { icon: "🎯", title: "SMART TEMPLATES + CUSTOM CODE", desc: "Uses proven templates when they fit, generates fully custom code when needed. Best of both worlds — speed and flexibility." },
-            { icon: "🔄", title: "DETERMINISTIC & REPRODUCIBLE", desc: "Same prompt, same output. Fully testable, auditable, version-controlled. Ship with confidence." },
+            { icon: "âš¡", title: "FULL APPLICATION GENERATION", desc: "From a single prompt to a complete working application â€” frontend views, backend logic, database, and authentication. Not scaffolding. Real code." },
+            { icon: "ðŸ“¡", title: "REAL-TIME STREAMING", desc: "Watch your application being built live. Every file streams via WebSocket â€” you see exactly what's being generated, as it happens." },
+            { icon: "ðŸ§ ", title: "MULTI-AGENT ARCHITECTURE", desc: "Three specialized AI agents collaborate: the Planner architects, the Developer codes, the Executor runs. Each optimized for its job." },
+            { icon: "ðŸ³", title: "INSTANT DOCKER PREVIEW", desc: "Every project runs in an isolated Docker container. See your working app within seconds. No local setup required." },
+            { icon: "ðŸŽ¯", title: "SMART TEMPLATES + CUSTOM CODE", desc: "Uses proven templates when they fit, generates fully custom code when needed. Best of both worlds â€” speed and flexibility." },
+            { icon: "ðŸ”„", title: "DETERMINISTIC & REPRODUCIBLE", desc: "Same prompt, same output. Fully testable, auditable, version-controlled. Ship with confidence." },
           ].map((f, i) => (
             <div key={f.title} className={`feat-card p-10 rounded-[20px] transition-all duration-400 relative overflow-hidden hover:-translate-y-1 hover:shadow-[0_15px_50px_var(--card-shadow)] border reveal ${i % 2 === 0 ? "reveal-d1" : "reveal-d2"}`} style={{ background: "var(--surface)", borderColor: "var(--border)" }}>
               <div className="w-12 h-12 mb-5 rounded-[14px] flex items-center justify-center text-[1.3rem] border border-[rgba(0,255,136,0.12)]" style={{ background: "linear-gradient(135deg,rgba(0,255,136,0.1),rgba(0,255,136,0.02))" }}>{f.icon}</div>
@@ -770,9 +880,9 @@ nav.scrolled{background:var(--nav-bg-scroll)!important;box-shadow:0 4px 40px rgb
         </div>
       </section>
 
-      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
           AUDIENCE
-         â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
+         â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
       <section className="relative z-10 py-[120px] px-8">
         <div className="text-center">
           <div className="font-[Space_Mono,monospace] text-[0.7rem] text-[var(--green)] tracking-[3px] mb-3 opacity-80 reveal">// TARGET_OPERATORS</div>
@@ -782,9 +892,9 @@ nav.scrolled{background:var(--nav-bg-scroll)!important;box-shadow:0 4px 40px rgb
 
         <div className="audience-grid max-w-[1100px] mx-auto mt-16 grid grid-cols-3 gap-6">
           {[
-            { emoji: "🏢", title: "AGENCIES", items: ["Ship client projects faster", "Consistent code quality across projects", "Turn your process into repeatable workflows"] },
-            { emoji: "🚀", title: "STARTUPS", items: ["MVP in days, not weeks", "Production quality from day one", "Iterate fast without breaking things"] },
-            { emoji: "💻", title: "DEVELOPERS", items: ["Eliminate boilerplate forever", "Stay in the zone — focus on logic", "Reproducible, sharable starting points"] },
+            { emoji: "ðŸ¢", title: "AGENCIES", items: ["Ship client projects faster", "Consistent code quality across projects", "Turn your process into repeatable workflows"] },
+            { emoji: "ðŸš€", title: "STARTUPS", items: ["MVP in days, not weeks", "Production quality from day one", "Iterate fast without breaking things"] },
+            { emoji: "ðŸ’»", title: "DEVELOPERS", items: ["Eliminate boilerplate forever", "Stay in the zone â€” focus on logic", "Reproducible, sharable starting points"] },
           ].map((c, i) => (
             <div key={c.title} className={`p-12 px-8 rounded-[20px] text-center transition-all duration-400 hover:-translate-y-1.5 hover:shadow-[0_20px_60px_var(--card-shadow)] border reveal reveal-d${i + 1}`} style={{ background: "var(--surface)", borderColor: "var(--border)" }}>
               <span className="text-[2.5rem] mb-5 block">{c.emoji}</span>
@@ -792,7 +902,7 @@ nav.scrolled{background:var(--nav-bg-scroll)!important;box-shadow:0 4px 40px rgb
               <ul className="list-none p-0 text-left">
                 {c.items.map((item) => (
                   <li key={item} className="py-1.5 text-[var(--text-body)] text-[0.9rem] flex items-start gap-2.5">
-                    <span className="text-[var(--green)] font-semibold shrink-0">→</span>{item}
+                    <span className="text-[var(--green)] font-semibold shrink-0">â†’</span>{item}
                   </li>
                 ))}
               </ul>
@@ -801,9 +911,9 @@ nav.scrolled{background:var(--nav-bg-scroll)!important;box-shadow:0 4px 40px rgb
         </div>
       </section>
 
-     {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+     {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     PRICING
-   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
 <section id="pricing" className="relative z-10 py-[120px] px-8">
   <div className="text-center">
     <div className="font-[Space_Mono,monospace] text-[0.7rem] text-[var(--green)] tracking-[3px] mb-3 opacity-80 reveal">// PRICING_MATRIX</div>
@@ -811,86 +921,72 @@ nav.scrolled{background:var(--nav-bg-scroll)!important;box-shadow:0 4px 40px rgb
     <p className="text-[var(--text-body)] text-[1.05rem] max-w-[560px] mx-auto leading-[1.7] reveal">Start free, upgrade when you need more. No hidden fees.</p>
   </div>
 
-  <div className="pricing-grid max-w-[1200px] mx-auto mt-16 grid grid-cols-4 gap-5">
-    {/* FREE */}
-    <div className="p-[2.2rem_1.8rem] rounded-[20px] transition-all duration-400 relative flex flex-col hover:-translate-y-1.5 hover:shadow-[0_20px_60px_var(--card-shadow)] border reveal reveal-d1" style={{ background: "var(--surface)", borderColor: "var(--border)" }}>
-      <div className="font-[Space_Mono,monospace] text-[0.65rem] text-[var(--text-muted)] tracking-[3px] mb-3">FREE</div>
-      <div className="font-[Orbitron,sans-serif] text-[2.2rem] font-extrabold mb-0.5 text-[var(--text-primary)]">$0</div>
-      <div className="text-[var(--text-muted)] text-[0.82rem] mb-2.5">forever</div>
-      <div className="text-[var(--text-body)] text-[0.88rem] mb-6 leading-[1.4]">Get a taste of autonomous AI development. One project to explore.</div>
-      <ul className="list-none p-0 mb-8 flex-1">
-        {["1 active project", "5 AI builds per month", "Community support", "Standard build queue","yourname.ziplogicai.com"].map((f) => (
-          <li key={f} className="py-1.5 text-[var(--text-body)] text-[0.84rem] flex items-center gap-2"><span className="text-[var(--green)] font-bold shrink-0">✓</span>{f}</li>
-        ))}
-      </ul>
-      <button className="w-full py-3.5 rounded-xl font-[Orbitron,sans-serif] text-[0.72rem] font-bold tracking-[1px] transition-all cursor-default opacity-70 border" style={{ background: "var(--surface)", color: "var(--text-muted)", borderColor: "var(--border)" }} type="button">CURRENT PLAN</button>
-    </div>
-
-    {/* BUILDER */}
-    <div className="p-[2.2rem_1.8rem] rounded-[20px] transition-all duration-400 relative flex flex-col hover:-translate-y-1.5 hover:shadow-[0_20px_60px_var(--card-shadow)] border reveal reveal-d2" style={{ background: "var(--surface)", borderColor: "var(--border)" }}>
-      <div className="font-[Space_Mono,monospace] text-[0.65rem] text-[var(--text-muted)] tracking-[3px] mb-3">BUILDER</div>
-      <div className="font-[Orbitron,sans-serif] text-[2.2rem] font-extrabold mb-0.5 text-[var(--text-primary)]">$49</div>
-      <div className="text-[var(--text-muted)] text-[0.82rem] mb-2.5">per month</div>
-      <div className="text-[var(--text-body)] text-[0.88rem] mb-6 leading-[1.4]">For indie hackers and solo devs shipping real products.</div>
-      <ul className="list-none p-0 mb-8 flex-1">
-        {["3 active projects", "50 AI builds per month", "Auto deployment", "Email support", "Branded subdomain"].map((f) => (
-          <li key={f} className="py-1.5 text-[var(--text-body)] text-[0.84rem] flex items-center gap-2"><span className="text-[var(--green)] font-bold shrink-0">✓</span>{f}</li>
-        ))}
-      </ul>
-      <button
-        className="w-full py-3.5 rounded-xl font-[Orbitron,sans-serif] text-[0.72rem] font-bold tracking-[1px] transition-all cursor-pointer border-none hover:shadow-[0_0_45px_rgba(0,255,136,0.4)] hover:-translate-y-0.5 disabled:opacity-75 disabled:cursor-not-allowed"
-        style={{ background: "linear-gradient(135deg,var(--green),#00cc66)", color: "#000", boxShadow: "0 0 20px rgba(0,255,136,0.2)" }}
-        type="button"
-        disabled={payLoading.plan === "builder"}
-        onClick={() => startCheckout("builder")}
-      >
-        {payLoading.plan === "builder" ? "REDIRECTING…" : "UPGRADE NOW"}
-      </button>
-    </div>
-
-    {/* PRO */}
-    <div className="p-[2.2rem_1.8rem] rounded-[20px] transition-all duration-400 relative flex flex-col hover:-translate-y-1.5 hover:shadow-[0_20px_60px_var(--card-shadow)] border reveal reveal-d3" style={{ background: "var(--surface)", borderColor: "var(--border)" }}>
-      <div className="font-[Space_Mono,monospace] text-[0.65rem] text-[var(--text-muted)] tracking-[3px] mb-3">PRO</div>
-      <div className="font-[Orbitron,sans-serif] text-[2.2rem] font-extrabold mb-0.5 text-[var(--text-primary)]">$129</div>
-      <div className="text-[var(--text-muted)] text-[0.82rem] mb-2.5">per month</div>
-      <div className="text-[var(--text-body)] text-[0.88rem] mb-6 leading-[1.4]">For teams building at scale with priority infrastructure.</div>
-      <ul className="list-none p-0 mb-8 flex-1">
-        {["10 projects", "200 AI builds per month", "Priority build queue", "3 team seats", "API access", "Priority support","Branded subdomains"].map((f) => (
-          <li key={f} className="py-1.5 text-[var(--text-body)] text-[0.84rem] flex items-center gap-2"><span className="text-[var(--green)] font-bold shrink-0">✓</span>{f}</li>
-        ))}
-      </ul>
-      <button
-        className="w-full py-3.5 rounded-xl font-[Orbitron,sans-serif] text-[0.72rem] font-bold tracking-[1px] transition-all cursor-pointer border-none hover:shadow-[0_0_45px_rgba(0,255,136,0.4)] hover:-translate-y-0.5 disabled:opacity-75 disabled:cursor-not-allowed"
-        style={{ background: "linear-gradient(135deg,var(--green),#00cc66)", color: "#000", boxShadow: "0 0 20px rgba(0,255,136,0.2)" }}
-        type="button"
-        disabled={payLoading.plan === "pro"}
-        onClick={() => startCheckout("pro")}
-      >
-        {payLoading.plan === "pro" ? "REDIRECTING…" : "UPGRADE NOW"}
-      </button>
-    </div>
-
-    {/* AGENCY (Most Popular) */}
-    <div className="price-pop p-[2.2rem_1.8rem] rounded-[20px] transition-all duration-400 relative flex flex-col hover:shadow-[0_20px_60px_var(--card-shadow)] border scale-[1.03] reveal reveal-d1" style={{ background: "rgba(0,255,136,0.03)", borderColor: "rgba(0,255,136,0.3)", boxShadow: "0 0 60px rgba(0,255,136,0.06)" }}>
-      <div className="font-[Space_Mono,monospace] text-[0.65rem] text-[var(--text-muted)] tracking-[3px] mb-3">AGENCY</div>
-      <div className="font-[Orbitron,sans-serif] text-[2.2rem] font-extrabold mb-0.5 gradient-gc">$299</div>
-      <div className="text-[var(--text-muted)] text-[0.82rem] mb-2.5">per month</div>
-      <div className="text-[var(--text-body)] text-[0.88rem] mb-6 leading-[1.4]">Maximum clearance. For agencies managing client portfolios.</div>
-      <ul className="list-none p-0 mb-8 flex-1">
-        {["25 active projects", "500 AI builds per month", "10 team seats", "Branded subdomains", "White-label add-on available", "24/7 dedicated support", "API access","Priority everything"].map((f) => (
-          <li key={f} className="py-1.5 text-[var(--text-body)] text-[0.84rem] flex items-center gap-2"><span className="text-[var(--green)] font-bold shrink-0">✓</span>{f}</li>
-        ))}
-      </ul>
-      <button
-        className="w-full py-3.5 rounded-xl font-[Orbitron,sans-serif] text-[0.72rem] font-bold tracking-[1px] transition-all cursor-pointer border-none hover:shadow-[0_0_45px_rgba(0,255,136,0.4)] hover:-translate-y-0.5 disabled:opacity-75 disabled:cursor-not-allowed"
-        style={{ background: "linear-gradient(135deg,var(--green),#00cc66)", color: "#000", boxShadow: "0 0 20px rgba(0,255,136,0.2)" }}
-        type="button"
-        disabled={payLoading.plan === "agency"}
-        onClick={() => startCheckout("agency")}
-      >
-        {payLoading.plan === "agency" ? "REDIRECTING…" : "UPGRADE NOW"}
-      </button>
-    </div>
+   <div className="pricing-grid max-w-[1200px] mx-auto mt-16 grid grid-cols-4 gap-5">
+     {(() => {
+       console.log('[Landing RENDER] plansLoading:', plansLoading, 'plans.length:', plans?.length, 'plans:', plans);
+       return null;
+     })()}
+     {plansLoading ? (
+       <div className="col-span-full text-center py-20">
+         <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[var(--green)]"></div>
+         <p className="mt-4 font-[Space_Mono,monospace] text-[var(--green)]">Loading plans...</p>
+       </div>
+     ) : plans.length === 0 ? (
+       <div className="col-span-full text-center py-20 text-[var(--text-muted)]">
+         No plans available at the moment.
+       </div>
+     ) : (
+       plans.map((plan, index) => {
+        const isPopular = plan.is_popular;
+        const isFree = plan.price_monthly === 0;
+        const delayClass = index === 0 ? 'reveal-d1' : index === 1 ? 'reveal-d2' : index === 2 ? 'reveal-d3' : 'reveal-d1';
+        
+        return (
+          <div 
+            key={plan.id} 
+            className={`p-[2.2rem_1.8rem] rounded-[20px] transition-all duration-400 relative flex flex-col hover:-translate-y-1.5 hover:shadow-[0_20px_60px_var(--card-shadow)] border reveal ${delayClass} ${isPopular ? 'price-pop scale-[1.03]' : ''}`}
+            style={{ 
+              background: isPopular ? "rgba(0,255,136,0.03)" : "var(--surface)", 
+              borderColor: isPopular ? "rgba(0,255,136,0.3)" : "var(--border)",
+              boxShadow: isPopular ? "0 0 60px rgba(0,255,136,0.06)" : undefined
+            }}
+          >
+            <div className="font-[Space_Mono,monospace] text-[0.65rem] text-[var(--text-muted)] tracking-[3px] mb-3">{plan.name.toUpperCase()}</div>
+            <div className={`font-[Orbitron,sans-serif] text-[2.2rem] font-extrabold mb-0.5 ${isPopular ? 'gradient-gc' : 'text-[var(--text-primary)]'}`}>
+              ${isFree ? '0' : plan.price_monthly}
+            </div>
+            <div className="text-[var(--text-muted)] text-[0.82rem] mb-2.5">{isFree ? 'forever' : 'per month'}</div>
+            <div className="text-[var(--text-body)] text-[0.88rem] mb-6 leading-[1.4]">{plan.description}</div>
+            <ul className="list-none p-0 mb-8 flex-1">
+              {plan.features.map((feature, i) => (
+                <li key={i} className="py-1.5 text-[var(--text-body)] text-[0.84rem] flex items-center gap-2">
+                  <span className="text-[var(--green)] font-bold shrink-0">âœ“</span>{feature}
+                </li>
+              ))}
+            </ul>
+            {isFree ? (
+              <button 
+                className="w-full py-3.5 rounded-xl font-[Orbitron,sans-serif] text-[0.72rem] font-bold tracking-[1px] transition-all cursor-default opacity-70 border" 
+                style={{ background: "var(--surface)", color: "var(--text-muted)", borderColor: "var(--border)" }} 
+                type="button"
+              >
+                CURRENT PLAN
+              </button>
+            ) : (
+              <button
+                className="w-full py-3.5 rounded-xl font-[Orbitron,sans-serif] text-[0.72rem] font-bold tracking-[1px] transition-all cursor-pointer border-none hover:shadow-[0_0_45px_rgba(0,255,136,0.4)] hover:-translate-y-0.5 disabled:opacity-75 disabled:cursor-not-allowed"
+                style={{ background: "linear-gradient(135deg,var(--green),#00cc66)", color: "#000", boxShadow: "0 0 20px rgba(0,255,136,0.2)" }}
+                type="button"
+                disabled={payLoading.plan === plan.slug}
+                onClick={() => startCheckout(plan.id, plan.slug)}
+              >
+                {payLoading.plan === plan.slug ? "REDIRECTINGâ€¦" : "UPGRADE NOW"}
+              </button>
+            )}
+          </div>
+        );
+      })
+    )}
   </div>
 
   {payLoading.error && (
@@ -905,26 +1001,26 @@ nav.scrolled{background:var(--nav-bg-scroll)!important;box-shadow:0 4px 40px rgb
   </p>
 </section>
 
-      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
           FAQ
-         â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
+         â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
       <section id="faq" className="relative z-10 py-[120px] px-8">
         <div className="text-center">
           <div className="font-[Space_Mono,monospace] text-[0.7rem] text-[var(--green)] tracking-[3px] mb-3 opacity-80 reveal">// COMMON_QUESTIONS</div>
           <h2 className="font-[Orbitron,sans-serif] text-[clamp(1.8rem,3.5vw,2.8rem)] font-bold mb-4 text-[var(--text-primary)] reveal"><span className="gradient">FAQ</span></h2>
         </div>
         <div className="max-w-[720px] mx-auto mt-12">
-          <FaqItem q="What is ZipLogic AI?" a="ZipLogic AI is an autonomous multi-agent system that generates complete, production-ready web applications from natural language descriptions. It plans, writes code, and runs everything in Docker — in about 60 seconds." />
+          <FaqItem q="What is ZipLogic AI?" a="ZipLogic AI is an autonomous multi-agent system that generates complete, production-ready web applications from natural language descriptions. It plans, writes code, and runs everything in Docker â€” in about 60 seconds." />
           <FaqItem q="What kind of apps can it build?" a="Full-stack web applications including dashboards, CRUD apps, SaaS tools, landing pages, admin panels, and more. Generates React frontends, Node.js or Django backends, database models, and authentication." />
           <FaqItem q="Do I own the generated code?" a="Yes, 100%. Every line of code is yours to use, modify, and deploy commercially. Download it, push it to your repo, deploy it anywhere." />
-          <FaqItem q="How is this different from other AI coding tools?" a="Most AI tools help you write individual files or answer questions. ZipLogic builds entire applications end-to-end — a multi-agent pipeline handling architecture, generation, and execution as one autonomous workflow." />
+          <FaqItem q="How is this different from other AI coding tools?" a="Most AI tools help you write individual files or answer questions. ZipLogic builds entire applications end-to-end â€” a multi-agent pipeline handling architecture, generation, and execution as one autonomous workflow." />
           <FaqItem q="Is the beta free to try?" a="Yes. The free tier gives you 5 builds per month. No credit card required." />
         </div>
       </section>
 
-      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
           CTA
-         â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
+         â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
       <section className="relative z-10 py-[120px] px-8">
         <div className="cta-box max-w-[720px] mx-auto p-[4.5rem_3rem] rounded-[28px] text-center relative overflow-hidden border border-[rgba(0,255,136,0.12)] reveal" style={{ background: "linear-gradient(135deg,rgba(0,255,136,0.05),rgba(0,221,255,0.03),rgba(136,68,255,0.03))" }}>
           <h2 className="font-[Orbitron,sans-serif] text-[clamp(1.5rem,3vw,2.2rem)] font-bold mb-4 text-[var(--text-primary)]">READY TO <span className="gradient">BUILD</span>?</h2>
@@ -941,9 +1037,9 @@ nav.scrolled{background:var(--nav-bg-scroll)!important;box-shadow:0 4px 40px rgb
         </div>
       </section>
 
-      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
           FOOTER
-         â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
+         â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
       <footer className="relative z-10 px-8 pt-[60px] pb-[30px] border-t border-[var(--border)]">
         <div className="footer-cols max-w-[1100px] mx-auto flex justify-between items-start flex-wrap gap-12">
           <div>

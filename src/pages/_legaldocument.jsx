@@ -95,7 +95,7 @@ export default function ZipLogicLegal() {
           onClick={() => setNav(!nav)}
           className="bg-slate-800 border border-slate-600 text-cyan-400 px-4 py-2 rounded-lg text-sm font-bold hover:bg-slate-700 transition-colors shadow-lg"
         >
-          {nav ? "✕ Close" : "☰ Navigate"}
+          {nav ? "âœ• Close" : "â˜° Navigate"}
         </button>
         {nav && (
           <div className="absolute right-0 mt-2 w-56 bg-slate-800 border border-slate-600 rounded-lg shadow-2xl overflow-hidden">
@@ -121,7 +121,7 @@ export default function ZipLogicLegal() {
         </h1>
 
         <Alert type="red">
-          <Red>⚠️ CRITICAL:</Red>{" "}
+          <Red>âš ï¸ CRITICAL:</Red>{" "}
           <span className="text-slate-300">
             By using ZipLogic AI, you agree to ALL of these legal terms. ZipLogic
             AI is operated by <Cyan>Pascat Graphics & Marketing Company</Cyan>.
@@ -130,7 +130,7 @@ export default function ZipLogicLegal() {
         </Alert>
 
         <p className="font-mono text-xs text-slate-500 tracking-widest mb-8">
-          LAST UPDATED: February 6, 2026 • EFFECTIVE: February 6, 2026
+          LAST UPDATED: February 6, 2026 â€¢ EFFECTIVE: February 6, 2026
         </p>
 
         <Contact>
@@ -146,14 +146,14 @@ export default function ZipLogicLegal() {
           </P>
         </Contact>
 
-        {/* ══════════════════════════════════════════════════════════════ */}
+        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
         {/* 1. TERMS OF SERVICE                                         */}
-        {/* ══════════════════════════════════════════════════════════════ */}
+        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
         <div id="tos">
           <H2>1. TERMS OF SERVICE</H2>
 
           <Alert type="red">
-            <Red>⚠️ BINDING AGREEMENT:</Red>{" "}
+            <Red>âš ï¸ BINDING AGREEMENT:</Red>{" "}
             <span className="text-slate-300">
               By creating an account or using ZipLogic AI, you agree to these
               Terms. If you do not agree, do not use the platform.
@@ -174,7 +174,7 @@ export default function ZipLogicLegal() {
           <UL>
             <li>You must be at least <Red>13 years old</Red> to use ZipLogic AI</li>
             <li>You must provide <strong>accurate and complete registration information</strong></li>
-            <li><strong>One account per person</strong> — sharing credentials is prohibited</li>
+            <li><strong>One account per person</strong> â€” sharing credentials is prohibited</li>
             <li>You are <strong>responsible for all activity</strong> under your account</li>
             <li>You must keep your password secure and notify us immediately of unauthorized access</li>
             <li>We may suspend or terminate accounts that violate these Terms</li>
@@ -202,7 +202,7 @@ export default function ZipLogicLegal() {
           <H3>1.4 AI-Generated Code: Ownership & Licensing</H3>
 
           <Alert type="red">
-            <Red>🔥 CRITICAL — READ CAREFULLY</Red>
+            <Red>ðŸ”¥ CRITICAL â€” READ CAREFULLY</Red>
           </Alert>
 
           <H4>Your Prompts</H4>
@@ -223,7 +223,7 @@ export default function ZipLogicLegal() {
             <li>Host it on your own infrastructure</li>
           </UL>
 
-          <P><Red>🚫 You are PROHIBITED from:</Red></P>
+          <P><Red>ðŸš« You are PROHIBITED from:</Red></P>
           <UL>
             <li><strong>Redistributing</strong> the generated code to others</li>
             <li><strong>Reselling</strong> the generated code as a product or template</li>
@@ -244,7 +244,7 @@ export default function ZipLogicLegal() {
           </UL>
 
           <Alert type="amber">
-            <strong>⚠️ LICENSE ENFORCEMENT:</strong>{" "}
+            <strong>âš ï¸ LICENSE ENFORCEMENT:</strong>{" "}
             <span className="text-slate-300">
               We actively monitor for license violations through code fingerprinting
               and honeypot detection. Violations may result in account termination
@@ -262,7 +262,7 @@ export default function ZipLogicLegal() {
           </UL>
 
           <Alert type="red">
-            <Red>🚫 CRITICAL:</Red>{" "}
+            <Red>ðŸš« CRITICAL:</Red>{" "}
             <span className="text-slate-300">
               Circumventing, removing, or modifying these protections is a material
               breach of these Terms and may result in immediate termination and
@@ -273,7 +273,7 @@ export default function ZipLogicLegal() {
           <H3>1.6 NO REFUNDS POLICY</H3>
 
           <Alert type="red">
-            <Red>🚫 ALL SALES ARE FINAL — NO REFUNDS</Red>
+            <Red>ðŸš« ALL SALES ARE FINAL â€” NO REFUNDS</Red>
           </Alert>
 
           <P>
@@ -291,7 +291,7 @@ export default function ZipLogicLegal() {
 
           <P>
             <Red>
-              ⚠️ By subscribing, you acknowledge and accept this NO REFUNDS
+              âš ï¸ By subscribing, you acknowledge and accept this NO REFUNDS
               policy.
             </Red>
           </P>
@@ -304,7 +304,7 @@ export default function ZipLogicLegal() {
           <H3>1.7 Beta Program & Service Availability</H3>
 
           <Alert type="amber">
-            <strong>⚠️ ZipLogic AI is currently in BETA</strong>
+            <strong>âš ï¸ ZipLogic AI is currently in BETA</strong>
           </Alert>
 
           <P><strong>Beta Terms:</strong></P>
@@ -366,9 +366,9 @@ export default function ZipLogicLegal() {
           </P>
         </div>
 
-        {/* ══════════════════════════════════════════════════════════════ */}
+        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
         {/* 2. PRIVACY POLICY                                           */}
-        {/* ══════════════════════════════════════════════════════════════ */}
+        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
         <div id="privacy">
           <H2>2. PRIVACY POLICY (GDPR + CCPA + CPRA Compliant)</H2>
 
@@ -448,7 +448,7 @@ export default function ZipLogicLegal() {
           </UL>
 
           <Alert type="amber">
-            <strong>⚠️ IMPORTANT:</strong>{" "}
+            <strong>âš ï¸ IMPORTANT:</strong>{" "}
             <span className="text-slate-300">
               We do NOT use fingerprints for user surveillance, tracking, or
               behavioral analysis. They exist solely for license enforcement.
@@ -477,7 +477,7 @@ export default function ZipLogicLegal() {
           </P>
 
           <Alert type="red">
-            <Red>🚫 WE DO NOT SELL YOUR DATA.</Red>{" "}
+            <Red>ðŸš« WE DO NOT SELL YOUR DATA.</Red>{" "}
             <span className="text-slate-300">
               We do NOT share it with advertisers. We do NOT use it for marketing
               to third parties.
@@ -530,7 +530,7 @@ export default function ZipLogicLegal() {
           </UL>
 
           <Alert type="cyan">
-            <Green>✅ WE DO NOT SELL PERSONAL INFORMATION.</Green>
+            <Green>âœ… WE DO NOT SELL PERSONAL INFORMATION.</Green>
           </Alert>
 
           <H4>Your Data Rights</H4>
@@ -569,7 +569,7 @@ export default function ZipLogicLegal() {
           </UL>
 
           <Alert type="amber">
-            <strong>⚠️ NOTICE:</strong>{" "}
+            <strong>âš ï¸ NOTICE:</strong>{" "}
             <span className="text-slate-300">
               No system is 100% secure, but we take every reasonable precaution to
               protect your data.
@@ -608,14 +608,14 @@ export default function ZipLogicLegal() {
           </Contact>
         </div>
 
-        {/* ══════════════════════════════════════════════════════════════ */}
+        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
         {/* 3. AI USE & OUTPUT DISCLOSURE                                */}
-        {/* ══════════════════════════════════════════════════════════════ */}
+        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
         <div id="ai">
           <H2>3. AI USE & OUTPUT DISCLOSURE</H2>
 
           <Alert type="red">
-            <Red>⚠️ CRITICAL DISCLOSURE:</Red>{" "}
+            <Red>âš ï¸ CRITICAL DISCLOSURE:</Red>{" "}
             <span className="text-slate-300">
               AI-generated code may be inaccurate, incomplete, insecure, or contain
               errors. You are solely responsible for reviewing, testing, and
@@ -640,7 +640,7 @@ export default function ZipLogicLegal() {
           <H3>3.2 No Professional Advice</H3>
 
           <Alert type="red">
-            <Red>🚫 ZipLogic AI DOES NOT PROVIDE:</Red>
+            <Red>ðŸš« ZipLogic AI DOES NOT PROVIDE:</Red>
           </Alert>
 
           <UL>
@@ -685,7 +685,7 @@ export default function ZipLogicLegal() {
           <H3>3.5 Output Accuracy & Reliability</H3>
 
           <Alert type="amber">
-            <strong>⚠️ NO GUARANTEES:</strong>{" "}
+            <strong>âš ï¸ NO GUARANTEES:</strong>{" "}
             <span className="text-slate-300">
               We make no guarantees about the accuracy, reliability, completeness,
               or fitness for any particular purpose of AI-generated code.
@@ -710,7 +710,7 @@ export default function ZipLogicLegal() {
 
           <H3>3.7 Deterministic Output</H3>
           <P>
-            ZipLogic AI aims for <strong>deterministic output</strong> — the same
+            ZipLogic AI aims for <strong>deterministic output</strong> â€” the same
             prompt should generate identical results. However:
           </P>
           <UL>
@@ -737,9 +737,9 @@ export default function ZipLogicLegal() {
           </P>
         </div>
 
-        {/* ══════════════════════════════════════════════════════════════ */}
+        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
         {/* 4. ACCEPTABLE USE POLICY                                     */}
-        {/* ══════════════════════════════════════════════════════════════ */}
+        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
         <div id="aup">
           <H2>4. ACCEPTABLE USE POLICY</H2>
 
@@ -751,7 +751,7 @@ export default function ZipLogicLegal() {
           </Alert>
 
           <H3>4.1 Prohibited Content Generation</H3>
-          <P><Red>🚫 You may NOT use ZipLogic AI to generate:</Red></P>
+          <P><Red>ðŸš« You may NOT use ZipLogic AI to generate:</Red></P>
           <UL>
             <li><strong>Malware or Malicious Code:</strong> Viruses, trojans, ransomware, keyloggers, spyware, or any code designed to harm systems or users</li>
             <li><strong>Exploits:</strong> Security vulnerability exploits, hacking tools, password crackers, or penetration testing tools (without explicit authorization)</li>
@@ -831,14 +831,14 @@ export default function ZipLogicLegal() {
           </P>
         </div>
 
-        {/* ══════════════════════════════════════════════════════════════ */}
+        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
         {/* 5. NO REFUND POLICY                                          */}
-        {/* ══════════════════════════════════════════════════════════════ */}
+        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
         <div id="refund">
           <H2>5. NO REFUND POLICY</H2>
 
           <Alert type="red">
-            <Red>🚫 ALL SALES ARE FINAL — ABSOLUTELY NO REFUNDS</Red>
+            <Red>ðŸš« ALL SALES ARE FINAL â€” ABSOLUTELY NO REFUNDS</Red>
           </Alert>
 
           <H3>5.1 No Refunds Policy</H3>
@@ -850,13 +850,13 @@ export default function ZipLogicLegal() {
 
           <Alert type="amber">
             <strong>
-              ⚠️ By subscribing to or purchasing any ZipLogic AI service, you
+              âš ï¸ By subscribing to or purchasing any ZipLogic AI service, you
               acknowledge and accept this NO REFUNDS policy.
             </strong>
           </Alert>
 
           <H3>5.2 Non-Refundable Situations</H3>
-          <P><Red>🚫 Refunds will NOT be issued for:</Red></P>
+          <P><Red>ðŸš« Refunds will NOT be issued for:</Red></P>
           <UL>
             <li><strong>Change of Mind:</strong> If you simply decide you no longer need the service</li>
             <li><strong>Unused Projects:</strong> Unused project credits do not roll over and are not refundable</li>
@@ -918,7 +918,7 @@ export default function ZipLogicLegal() {
           </UL>
 
           <Alert type="amber">
-            <strong>⚠️ IMPORTANT:</strong>{" "}
+            <strong>âš ï¸ IMPORTANT:</strong>{" "}
             <span className="text-slate-300">
               This exception applies ONLY to billing system errors (duplicate
               charges, incorrect amounts). It does NOT apply to dissatisfaction,
@@ -929,7 +929,7 @@ export default function ZipLogicLegal() {
           <H3>5.7 Chargebacks</H3>
 
           <Alert type="red">
-            <strong>⚠️ Please contact us before filing a chargeback</strong>
+            <strong>âš ï¸ Please contact us before filing a chargeback</strong>
           </Alert>
 
           <P>
@@ -960,9 +960,9 @@ export default function ZipLogicLegal() {
           </Contact>
         </div>
 
-        {/* ══════════════════════════════════════════════════════════════ */}
+        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
         {/* 6. LIMITATION OF LIABILITY                                   */}
-        {/* ══════════════════════════════════════════════════════════════ */}
+        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
         <div id="liability">
           <H2>6. LIMITATION OF LIABILITY & INDEMNIFICATION</H2>
 
@@ -1056,9 +1056,9 @@ export default function ZipLogicLegal() {
           </P>
         </div>
 
-        {/* ══════════════════════════════════════════════════════════════ */}
+        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
         {/* 7. COOKIE POLICY                                             */}
-        {/* ══════════════════════════════════════════════════════════════ */}
+        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
         <div id="cookies">
           <H2>7. COOKIE POLICY</H2>
 
@@ -1140,7 +1140,7 @@ export default function ZipLogicLegal() {
           </UL>
 
           <Alert type="cyan">
-            <Green>✅ We do NOT use third-party advertising cookies or trackers.</Green>
+            <Green>âœ… We do NOT use third-party advertising cookies or trackers.</Green>
           </Alert>
 
           <H3>7.6 Local Storage</H3>
@@ -1179,9 +1179,9 @@ export default function ZipLogicLegal() {
           </P>
         </div>
 
-        {/* ══════════════════════════════════════════════════════════════ */}
+        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
         {/* 8. DATA PROCESSING ADDENDUM                                  */}
-        {/* ══════════════════════════════════════════════════════════════ */}
+        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
         <div id="dpa">
           <H2>8. DATA PROCESSING ADDENDUM (DPA)</H2>
 
@@ -1205,8 +1205,8 @@ export default function ZipLogicLegal() {
           <H3>8.2 Roles & Responsibilities</H3>
           <P>For personal data you provide through ZipLogic AI:</P>
           <UL>
-            <li><strong>You are the Controller</strong> — You determine what data you input and how it's used</li>
-            <li><strong>We are the Processor</strong> — We process your data according to your instructions (i.e., generating code)</li>
+            <li><strong>You are the Controller</strong> â€” You determine what data you input and how it's used</li>
+            <li><strong>We are the Processor</strong> â€” We process your data according to your instructions (i.e., generating code)</li>
           </UL>
 
           <H3>8.3 Processing Instructions</H3>
@@ -1333,14 +1333,14 @@ export default function ZipLogicLegal() {
           </Contact>
         </div>
 
-        {/* ══════════════════════════════════════════════════════════════ */}
+        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
         {/* 9. ARBITRATION & CLASS ACTION WAIVER                         */}
-        {/* ══════════════════════════════════════════════════════════════ */}
+        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
         <div id="arbitration">
           <H2>9. ARBITRATION & CLASS ACTION WAIVER</H2>
 
           <Alert type="red">
-            <Red>⚠️ IMPORTANT:</Red>{" "}
+            <Red>âš ï¸ IMPORTANT:</Red>{" "}
             <span className="text-slate-300">
               This section contains a binding arbitration clause and class action
               waiver. Please read carefully.
@@ -1414,7 +1414,7 @@ export default function ZipLogicLegal() {
           <H3>9.4 Class Action Waiver</H3>
 
           <Alert type="red">
-            <Red>🚫 NO CLASS ACTIONS:</Red>{" "}
+            <Red>ðŸš« NO CLASS ACTIONS:</Red>{" "}
             <span className="text-slate-300">
               You agree to resolve disputes individually, not as part of a class action.
             </span>
@@ -1509,9 +1509,9 @@ export default function ZipLogicLegal() {
           </P>
         </div>
 
-        {/* ══════════════════════════════════════════════════════════════ */}
+        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
         {/* 10. DMCA POLICY                                              */}
-        {/* ══════════════════════════════════════════════════════════════ */}
+        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
         <div id="dmca">
           <H2>ADDITIONAL POLICIES (DMCA)</H2>
 
@@ -1567,7 +1567,7 @@ export default function ZipLogicLegal() {
 
           <H4>AI-Generated Code Considerations</H4>
           <Alert type="amber">
-            <strong>⚠️ Important Note on AI-Generated Content:</strong>{" "}
+            <strong>âš ï¸ Important Note on AI-Generated Content:</strong>{" "}
             <span className="text-slate-300">
               ZipLogic AI generates code using large language models trained on
               publicly available code. While we take steps to ensure generated code
@@ -1579,9 +1579,9 @@ export default function ZipLogicLegal() {
           </Alert>
         </div>
 
-        {/* ══════════════════════════════════════════════════════════════ */}
+        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
         {/* FINAL CONTACT & JURISDICTION                                 */}
-        {/* ══════════════════════════════════════════════════════════════ */}
+        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
         <H2>FINAL CONTACT & JURISDICTION</H2>
 
         <Contact>
@@ -1601,13 +1601,13 @@ export default function ZipLogicLegal() {
         </Contact>
 
         <Alert type="cyan">
-          <strong>📄 Last Updated:</strong> February 6, 2026
+          <strong>ðŸ“„ Last Updated:</strong> February 6, 2026
           <br />
-          <strong>📄 Effective Date:</strong> February 6, 2026
+          <strong>ðŸ“„ Effective Date:</strong> February 6, 2026
         </Alert>
 
         <p className="text-center mt-16 text-slate-500 text-xs">
-          © 2026 Pascat Graphics & Marketing Company. All rights reserved.
+          Â© 2026 Pascat Graphics & Marketing Company. All rights reserved.
           <br />
           ZipLogic AI is a division of Pascat Graphics & Marketing Company.
         </p>

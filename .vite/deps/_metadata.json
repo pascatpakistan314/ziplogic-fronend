@@ -1,67 +1,73 @@
 {
-  "hash": "2b7f4bdf",
+  "hash": "500083a3",
   "configHash": "6f2ed04f",
-  "lockfileHash": "8429b29b",
-  "browserHash": "24ebd559",
+  "lockfileHash": "ead2fe33",
+  "browserHash": "08ad2f2c",
   "optimized": {
     "react": {
       "src": "../../node_modules/react/index.js",
       "file": "react.js",
-      "fileHash": "7b620633",
+      "fileHash": "729656ec",
       "needsInterop": true
     },
     "react-dom/client": {
       "src": "../../node_modules/react-dom/client.js",
       "file": "react-dom_client.js",
-      "fileHash": "6f3b3513",
+      "fileHash": "31f96935",
       "needsInterop": true
     },
     "react-router-dom": {
       "src": "../../node_modules/react-router-dom/dist/index.js",
       "file": "react-router-dom.js",
-      "fileHash": "539f5d55",
+      "fileHash": "195c94cb",
       "needsInterop": false
     },
     "react-hot-toast": {
       "src": "../../node_modules/react-hot-toast/dist/index.mjs",
       "file": "react-hot-toast.js",
-      "fileHash": "3712a74d",
+      "fileHash": "c5ff4c60",
       "needsInterop": false
     },
     "zustand": {
       "src": "../../node_modules/zustand/esm/index.mjs",
       "file": "zustand.js",
-      "fileHash": "6faa1c4a",
+      "fileHash": "b64b358b",
       "needsInterop": false
     },
     "zustand/middleware": {
       "src": "../../node_modules/zustand/esm/middleware.mjs",
       "file": "zustand_middleware.js",
-      "fileHash": "de0973d1",
+      "fileHash": "93f47424",
       "needsInterop": false
     },
     "lucide-react": {
-      "src": "../../node_modules/lucide-react/dist/esm/lucide-react.js",
+      "src": "../../node_modules/lucide-react/dist/esm/lucide-react.mjs",
       "file": "lucide-react.js",
-      "fileHash": "aaa2ff98",
+      "fileHash": "563420ab",
       "needsInterop": false
     },
     "axios": {
       "src": "../../node_modules/axios/index.js",
       "file": "axios.js",
-      "fileHash": "9cdb193f",
+      "fileHash": "7e67dcc4",
+      "needsInterop": false
+    },
+    "@webcontainer/api": {
+      "src": "../../node_modules/@webcontainer/api/dist/index.js",
+      "file": "@webcontainer_api.js",
+      "fileHash": "3f73444e",
       "needsInterop": false
     }
   },
   "chunks": {
-    "chunk-TNTPHDQH": {
-      "file": "chunk-TNTPHDQH.js"
+    "chunk-JMVEG3FK": {
+      "file": "chunk-JMVEG3FK.js"
     },
-    "chunk-32E4H3EV": {
-      "file": "chunk-32E4H3EV.js"
+    "chunk-TWJRYSII": {
+      "file": "chunk-TWJRYSII.js"
     },
-    "chunk-G3PMV62Z": {
-      "file": "chunk-G3PMV62Z.js"
+    "chunk-DC5AMYBS": {
+      "file": "chunk-DC5AMYBS.js"
     }
   }
 }

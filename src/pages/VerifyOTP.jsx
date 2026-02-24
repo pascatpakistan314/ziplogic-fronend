@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
-import { useAuthStore } from '../store/authStore'
+import { useAuthStore } from '../services/authStore'
 import { Zap, Mail } from 'lucide-react'
 import { ButtonLoading } from '../components/Loading'
 import toast from 'react-hot-toast'

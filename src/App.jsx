@@ -1,5 +1,5 @@
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
-import { useAuthStore } from './store/authStore'
+import { useAuthStore } from './services/authStore'
 
 // Layout
 import Navbar from './components/Navbar'
@@ -13,6 +13,7 @@ import VerifyOTP from './pages/VerifyOTP'
 import Dashboard from './pages/Dashboard'
 import NewProject from './pages/NewProject'
 import ProjectDetail from './pages/ProjectDetail'
+import ProjectEditor from './pages/ProjectEditor'
 import Pricing from './pages/Pricing'
 
 // Admin Pages
@@ -22,7 +23,7 @@ import AdminProjects from './pages/admin/Projects'
 import AdminPayments from './pages/admin/Payments'
 import AdminLicenses from './pages/admin/Licenses'
 import AdminSettings from './pages/admin/Settings'
-import CommandCenter from './pages/CommandCenter'
+import CommandCenter from './components/CommandCenter'
 
 
 
@@ -88,6 +89,7 @@ function App() {
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/new-project" element={<ProtectedRoute><NewProject /></ProtectedRoute>} />
           <Route path="/project/:id" element={<ProtectedRoute><ProjectDetail /></ProtectedRoute>} />
+          <Route path="/project/:id/editor" element={<ProtectedRoute><ProjectEditor /></ProtectedRoute>} />
           
           {/* Admin routes */}
           <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />

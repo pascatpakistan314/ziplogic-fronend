@@ -19,39 +19,50 @@ export function usePreviewAutoFix(projectId, previewUrl) {
   const iframeRef = useRef(null);
   const [isFixing, setIsFixing] = useState(false);
   const [fixCount, setFixCount] = useState(0);
-  const fixingRef = useRef(false); // avoid stale closure
-  const MAX_AUTO_FIXES = 5;
+  const [fixStatus, setFixStatus] = useState(''); // 'fixing', 'fixed', 'failed', ''
+  const fixingRef = useRef(false);
+  const MAX_AUTO_FIXES = 10;
 
   const triggerFix = useCallback(async (errorData) => {
     if (fixingRef.current || fixCount >= MAX_AUTO_FIXES || !projectId) return;
 
     fixingRef.current = true;
     setIsFixing(true);
+    setFixStatus('fixing');
 
     try {
-      console.log(`🔧 Auto-fix attempt ${fixCount + 1}/${MAX_AUTO_FIXES}:`, errorData.message);
+      console.log(`🤖 AI Fix attempt ${fixCount + 1}/${MAX_AUTO_FIXES}:`, errorData.message);
 
-      const response = await axiosInstance.post(`/api/preview/fix/${projectId}/`, {
-        error: errorData.message || 'Unknown error',
-        component_stack: errorData.componentStack || '',
-        stack: errorData.stack || '',
+      // Use new browser-errors/fix endpoint
+      const response = await axiosInstance.post('/api/agents_v3/preview/browser-errors/fix/', {
+        project_id: projectId,
+        error_message: errorData.message || 'Unknown error',
+        error_file: errorData.file || errorData.source || '',
+        error_stack: errorData.stack || errorData.componentStack || '',
+        page_url: errorData.pageUrl || window.location.pathname,
       });
 
       if (response.data.success) {
-        console.log('✅ Fix applied:', response.data.message);
+        console.log('✅ AI Fix applied!');
         setFixCount(prev => prev + 1);
+        setFixStatus('fixed');
 
-        // Reload iframe after a short delay to let backend regenerate
+        // Reload iframe after agent fixes files
         setTimeout(() => {
           if (iframeRef.current) {
             iframeRef.current.src = iframeRef.current.src;
           }
-        }, 500);
+          setFixStatus('');
+        }, 2000);
       } else {
-        console.warn('❌ Fix failed:', response.data.message);
+        console.warn('❌ AI Fix failed:', response.data.message);
+        setFixStatus('failed');
+        setTimeout(() => setFixStatus(''), 3000);
       }
     } catch (err) {
-      console.error('Fix API error:', err);
+      console.error('AI Fix API error:', err);
+      setFixStatus('failed');
+      setTimeout(() => setFixStatus(''), 3000);
     } finally {
       fixingRef.current = false;
       setIsFixing(false);
@@ -79,7 +90,7 @@ export function usePreviewAutoFix(projectId, previewUrl) {
     fixingRef.current = false;
   }, [projectId]);
 
-  return { iframeRef, isFixing, fixCount, triggerFix };
+  return { iframeRef, isFixing, fixCount, fixStatus, triggerFix };
 }
 
 

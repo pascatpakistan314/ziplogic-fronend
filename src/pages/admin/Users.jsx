@@ -152,7 +152,7 @@ export default function Users() {
                   <td className="px-6 py-4">
                     <div>
                       <p className="font-medium">{user.email}</p>
-                      {user.is_verified && <span className="text-xs text-green-400">✓ verified</span>}
+                      {user.is_verified && <span className="text-xs text-green-400">âœ“ verified</span>}
                     </div>
                   </td>
                   <td className="px-6 py-4 text-dark-400">{user.username || '-'}</td>

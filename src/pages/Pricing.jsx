@@ -1,64 +1,28 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useAuthStore } from '../store/authStore'
-import { paymentsAPI } from '../services/api'
+import { useAuthStore } from '../services/authStore'
+import { subscriptionsAPI } from '../services/api'
 import { Check, Zap, Rocket, Building, Crown } from 'lucide-react'
 import { ButtonLoading } from '../components/Loading'
 import toast from 'react-hot-toast'
 
-// ==================== DATA ====================
-const PLANS = [
-  {
-    name: 'Free', price: { m: 0, y: 0 }, plan: 'free', tier: 'free',
-    desc: 'Get a taste of autonomous AI development. One project to explore.', projects: 1, barW: '4%',
-    features: ['1 active project', '5 AI builds per month', 'Community support', 'Standard build queue', 'yourname.ziplogicai.com'],
-    icon: Zap, color: 'text-slate-400', bg: 'bg-slate-400', border: 'border-slate-600',
-    btnClass: 'bg-slate-800 text-slate-300 border border-slate-600 hover:bg-slate-700',
-  },
-  {
-    name: 'Builder', price: { m: 49, y: 39 }, plan: 'builder', tier: 'builder',
-    desc: 'For indie hackers and solo devs shipping real products.', projects: 3, barW: '12%',
-    features: ['3 active projects', '50 AI builds per month', 'Auto deployment', 'Branded subdomain', 'Email support'],
-    icon: Rocket, color: 'text-cyan-400', bg: 'bg-cyan-400', border: 'border-cyan-800',
-    btnClass: 'bg-cyan-900/50 text-cyan-400 border border-cyan-700 hover:bg-cyan-800/50',
-  },
-  {
-    name: 'Pro', price: { m: 129, y: 103 }, plan: 'pro', tier: 'pro',
-    desc: 'For teams building at scale with priority infrastructure.', projects: 10, barW: '40%',
-    features: ['10 active projects', '200 AI builds per month', 'Priority build queue', '3 team seats', 'Branded subdomains', 'API access', 'Priority support'],
-    icon: Building, color: 'text-emerald-400', bg: 'bg-emerald-400', border: 'border-emerald-800',
-    btnClass: 'bg-emerald-400 text-emerald-950 font-black hover:bg-emerald-300',
-  },
-  {
-    name: 'Agency', price: { m: 299, y: 239 }, plan: 'agency', tier: 'agency', popular: true,
-    desc: 'Maximum clearance. For agencies managing client portfolios.', projects: 25, barW: '100%',
-    features: ['25 active projects', '500 AI builds per month', '10 team seats', 'Branded subdomains', 'White-label add-on available', 'API access', '24/7 dedicated support', 'Priority everything'],
-    icon: Crown, color: 'text-fuchsia-400', bg: 'bg-fuchsia-400', border: 'border-fuchsia-800',
-    btnClass: 'bg-gradient-to-r from-fuchsia-500 to-cyan-500 text-gray-950 font-black hover:from-fuchsia-400 hover:to-cyan-400',
-  },
-]
+// Icon mapping
+const ICON_MAP = {
+  'Zap': Zap,
+  'Rocket': Rocket,
+  'Building': Building,
+  'Crown': Crown,
+}
 
-const COMPARE = [
-  { name: 'Active Projects', f: '1', b: '3', p: '10', a: '25' },
-  { name: 'AI Builds / Month', f: '5', b: '50', p: '200', a: '500' },
-  { name: 'Multi-Agent Orchestration', f: false, b: true, p: true, a: true },
-  { name: 'Auto Deployment', f: false, b: true, p: true, a: true },
-  { name: 'Custom Domains', f: false, b: false, p: false, a: 'Add-on' },
-  { name: 'Branded Subdomains', f: true, b: true, p: true, a: true },
-  { name: 'Priority Build Queue', f: false, b: false, p: true, a: true },
-  { name: 'Team Collaboration', f: false, b: false, p: '3 seats', a: '10 seats' },
-  { name: 'White-Label Branding', f: false, b: false, p: false, a: 'Add-on' },
-  { name: 'Dedicated Support', f: 'Community', b: 'Email', p: 'Priority', a: '24/7 Direct' },
-  { name: 'API Access', f: false, b: false, p: true, a: true },
-]
+// Feature comparison will be generated dynamically from plans
 
 const FAQS = [
-  { q: 'Can I switch plans anytime?', a: 'Yes — upgrade or downgrade at any time. Prorated billing on upgrades.' },
+  { q: 'Can I switch plans anytime?', a: 'Yes â€” upgrade or downgrade at any time. Prorated billing on upgrades.' },
   { q: 'What happens if I downgrade?', a: 'Projects remain intact but read-only beyond your new limit.' },
   { q: 'Do you offer refunds?', a: '14-day money-back guarantee on all paid plans.' },
   { q: 'Is there an enterprise plan?', a: 'Contact us for custom integrations and higher limits.' },
   { q: 'What payment methods?', a: 'All major credit cards via Stripe, PayPal, and wire transfer for annual Agency.' },
-  { q: 'How does AI generation work?', a: 'Multi-agent pipeline: Architect → Developer → Tester → Reviewer.' },
+  { q: 'How does AI generation work?', a: 'Multi-agent pipeline: Architect â†’ Developer â†’ Tester â†’ Reviewer.' },
 ]
 
 // ==================== BOOT OVERLAY ====================
@@ -299,9 +263,98 @@ export default function Pricing() {
   const [booted, setBooted] = useState(false)
   const [openFaq, setOpenFaq] = useState(null)
   const [kills, setKills] = useState(0)
+  const [plans, setPlans] = useState([])
+  const [loadingPlans, setLoadingPlans] = useState(true)
+  const [comparisonData, setComparisonData] = useState([])
   const navigate = useNavigate()
 
   const handleBoot = useCallback(() => setBooted(true), [])
+
+  // Fetch plans from database
+  useEffect(() => {
+    const fetchPlans = async () => {
+      try {
+        const response = await subscriptionsAPI.getPlans()
+        console.log('API Response:', response.data) // Debug log
+        const apiPlans = response.data.results || response.data
+        const dbPlans = apiPlans.map(plan => ({
+          id: plan.id,
+          name: plan.name,
+          slug: plan.slug,
+          price: { m: parseFloat(plan.price_monthly), y: parseFloat(plan.price_yearly) },
+          plan: plan.slug,
+          tier: plan.slug,
+          desc: plan.description,
+          projects: plan.max_projects,
+          barW: plan.bar_width,
+          features: plan.features,
+          icon: ICON_MAP[plan.icon] || Zap,
+          color: plan.color,
+          bg: plan.bg_color,
+          border: plan.border_color,
+          btnClass: plan.button_class,
+          popular: plan.is_popular,
+        }))
+        console.log('Processed Plans:', dbPlans) // Debug log
+        setPlans(dbPlans)
+        
+        // Generate comparison data from plans
+        const comparison = [
+          { 
+            name: 'Active Projects', 
+            values: apiPlans.reduce((acc, p) => ({ ...acc, [p.slug]: p.max_projects }), {})
+          },
+          { 
+            name: 'AI Builds / Month', 
+            values: apiPlans.reduce((acc, p) => ({ ...acc, [p.slug]: p.max_ai_builds_per_month }), {})
+          },
+          { 
+            name: 'Multi-Agent Orchestration', 
+            values: apiPlans.reduce((acc, p) => ({ ...acc, [p.slug]: p.has_multi_agent }), {})
+          },
+          { 
+            name: 'Auto Deployment', 
+            values: apiPlans.reduce((acc, p) => ({ ...acc, [p.slug]: p.has_auto_deployment }), {})
+          },
+          { 
+            name: 'Custom Domains', 
+            values: apiPlans.reduce((acc, p) => ({ ...acc, [p.slug]: p.has_custom_domains || (p.slug === 'agency' ? 'Add-on' : false) }), {})
+          },
+          { 
+            name: 'Branded Subdomains', 
+            values: apiPlans.reduce((acc, p) => ({ ...acc, [p.slug]: p.has_branded_subdomains }), {})
+          },
+          { 
+            name: 'Priority Build Queue', 
+            values: apiPlans.reduce((acc, p) => ({ ...acc, [p.slug]: p.has_priority_queue }), {})
+          },
+          { 
+            name: 'Team Collaboration', 
+            values: apiPlans.reduce((acc, p) => ({ ...acc, [p.slug]: p.team_seats > 1 ? `${p.team_seats} seats` : false }), {})
+          },
+          { 
+            name: 'White-Label Branding', 
+            values: apiPlans.reduce((acc, p) => ({ ...acc, [p.slug]: p.has_white_label || (p.slug === 'agency' ? 'Add-on' : false) }), {})
+          },
+          { 
+            name: 'Support Level', 
+            values: apiPlans.reduce((acc, p) => ({ ...acc, [p.slug]: p.support_level }), {})
+          },
+          { 
+            name: 'API Access', 
+            values: apiPlans.reduce((acc, p) => ({ ...acc, [p.slug]: p.has_api_access }), {})
+          },
+        ]
+        setComparisonData(comparison)
+      } catch (error) {
+        console.error('Failed to fetch plans:', error)
+        toast.error('Failed to load pricing plans')
+      } finally {
+        setLoadingPlans(false)
+      }
+    }
+    fetchPlans()
+  }, [])
 
   // Safety fallback - auto skip boot after 3s if stuck
   useEffect(() => {
@@ -322,20 +375,29 @@ export default function Pricing() {
     return () => clearTimeout(t)
   }, [booted])
 
-  const handleSelectPlan = async (plan) => {
+  const handleSelectPlan = async (planSlug, planId) => {
     if (!isAuthenticated) { navigate('/register'); return }
-    if (plan === 'free') { toast.success('You are already on the Free plan!'); return }
-    if (user?.subscription_plan === plan) { toast.success(`You are already on the ${plan} plan!`); return }
-    setLoading(plan)
+    if (planSlug === 'free') { toast.success('You are already on the Free plan!'); return }
+    if (user?.subscription_plan === planSlug) { toast.success(`You are already on the ${planSlug} plan!`); return }
+    setLoading(planSlug)
     try {
-      const res = await paymentsAPI.createCheckout({ plan })
-      if (res.data.checkout_url) window.location.href = res.data.checkout_url
-      else toast.error('Failed to create checkout')
-    } catch { toast.error('Failed to start checkout') }
+      const res = await subscriptionsAPI.createCheckout({ 
+        plan_id: planId,
+        billing_cycle: yearly ? 'yearly' : 'monthly'
+      })
+      if (res.data.url) {
+        window.location.href = res.data.url
+      } else {
+        toast.error('Failed to create checkout')
+      }
+    } catch (error) { 
+      console.error('Checkout error:', error)
+      toast.error('Failed to start checkout') 
+    }
     finally { setLoading(null) }
   }
 
-  const cell = (v) => v === true ? <span className="text-emerald-400">✓</span> : v === false ? <span className="text-slate-600">—</span> : v
+  const cell = (v) => v === true ? <span className="text-emerald-400">âœ“</span> : v === false ? <span className="text-slate-600">â€”</span> : v
 
   return (
     <div className="bg-[#020810] text-gray-200 min-h-screen relative">
@@ -363,7 +425,7 @@ export default function Pricing() {
         <div className="text-center mb-14">
           <div className="inline-flex items-center gap-2 font-mono text-xs tracking-[2px] text-cyan-400 bg-cyan-500/10 border border-cyan-500/25 px-5 py-1.5 mb-6">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_#00ff88] animate-pulse" />
-            PRICING MATRIX — SELECT CLEARANCE LEVEL
+            PRICING MATRIX â€” SELECT CLEARANCE LEVEL
           </div>
           <h1 className="text-3xl md:text-5xl font-black tracking-[6px] uppercase leading-tight mb-4">
             CHOOSE YOUR{' '}
@@ -386,7 +448,12 @@ export default function Pricing() {
 
         {/* Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 mb-16">
-          {PLANS.map((p) => {
+          {loadingPlans ? (
+            <div className="col-span-full text-center py-20">
+              <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-cyan-400"></div>
+              <p className="mt-4 font-mono text-sm text-cyan-400">Loading plans...</p>
+            </div>
+          ) : plans.map((p) => {
             const isCurr = user?.subscription_plan === p.plan
             const price = yearly ? p.price.y : p.price.m
             const orig = yearly ? p.price.m : null
@@ -400,7 +467,7 @@ export default function Pricing() {
                 {/* Popular banner */}
                 {p.popular && (
                   <div className="text-center py-2 bg-gradient-to-r from-fuchsia-500/20 to-cyan-500/10 text-fuchsia-400 font-black text-[9px] tracking-[3px] border-b border-fuchsia-500/20">
-                    ★ MOST POPULAR — BEST VALUE ★
+                    â˜… MOST POPULAR â€” BEST VALUE â˜…
                   </div>
                 )}
 
@@ -450,7 +517,7 @@ export default function Pricing() {
                   <ul className="mb-6 space-y-0">
                     {p.features.map((f, i) => (
                       <li key={i} className="flex items-center gap-2 font-mono text-xs text-cyan-200/60 py-1.5 border-b border-slate-800/50 last:border-0">
-                        <span className={`text-[10px] ${p.tier === 'agency' ? 'text-fuchsia-400' : p.color}`}>✓</span> {f}
+                        <span className={`text-[10px] ${p.tier === 'agency' ? 'text-fuchsia-400' : p.color}`}>âœ“</span> {f}
                         {p.popular && i >= 5 && <span className="ml-auto font-black text-[8px] tracking-wider text-amber-400 bg-amber-500/20 px-1.5 py-0.5">NEW</span>}
                       </li>
                     ))}
@@ -458,7 +525,7 @@ export default function Pricing() {
 
                   {/* CTA */}
                   <button
-                    onClick={() => handleSelectPlan(p.plan)}
+                    onClick={() => handleSelectPlan(p.plan, p.id)}
                     disabled={loading === p.plan || isCurr}
                     className={`w-full py-3.5 font-black text-xs tracking-[2px] uppercase transition-all disabled:opacity-60 ${isCurr ? 'bg-emerald-500/15 text-emerald-400' : p.btnClass}`}
                     style={{ clipPath: 'polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%)' }}
@@ -478,28 +545,43 @@ export default function Pricing() {
           <div className="flex-1 h-px bg-gradient-to-r from-slate-800 to-transparent" />
         </div>
         <div className="overflow-x-auto mb-16">
-          <table className="w-full font-mono text-xs border-collapse">
-            <thead>
-              <tr>
-                <th className="text-left font-black text-[10px] tracking-[2px] p-3.5 border-b-2 border-slate-800">Feature</th>
-                <th className="text-center font-black text-[10px] tracking-[2px] p-3.5 border-b-2 border-slate-800">Free</th>
-                <th className="text-center font-black text-[10px] tracking-[2px] p-3.5 border-b-2 border-slate-800">Builder</th>
-                <th className="text-center font-black text-[10px] tracking-[2px] p-3.5 border-b-2 border-slate-800">Pro</th>
-                <th className="text-center font-black text-[10px] tracking-[2px] p-3.5 border-b-2 border-slate-800 text-fuchsia-400 bg-fuchsia-500/5">Agency ★</th>
-              </tr>
-            </thead>
-            <tbody>
-              {COMPARE.map((r, i) => (
-                <tr key={i} className="hover:bg-cyan-500/5">
-                  <td className="text-left p-3 border-b border-slate-800/50 text-gray-300">{r.name}</td>
-                  <td className="text-center p-3 border-b border-slate-800/50 text-cyan-200/60">{cell(r.f)}</td>
-                  <td className="text-center p-3 border-b border-slate-800/50 text-cyan-200/60">{cell(r.b)}</td>
-                  <td className="text-center p-3 border-b border-slate-800/50 text-cyan-200/60">{cell(r.p)}</td>
-                  <td className="text-center p-3 border-b border-slate-800/50 bg-fuchsia-500/5 font-bold">{cell(r.a)}</td>
+          {loadingPlans ? (
+            <div className="text-center py-10">
+              <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-cyan-400"></div>
+              <p className="mt-4 font-mono text-sm text-cyan-400">Loading comparison...</p>
+            </div>
+          ) : (
+            <table className="w-full font-mono text-xs border-collapse">
+              <thead>
+                <tr>
+                  <th className="text-left font-black text-[10px] tracking-[2px] p-3.5 border-b-2 border-slate-800">Feature</th>
+                  {plans.map((plan) => (
+                    <th 
+                      key={plan.slug} 
+                      className={`text-center font-black text-[10px] tracking-[2px] p-3.5 border-b-2 border-slate-800 ${plan.slug === 'agency' ? 'text-fuchsia-400 bg-fuchsia-500/5' : ''}`}
+                    >
+                      {plan.name} {plan.slug === 'agency' ? 'â˜…' : ''}
+                    </th>
+                  ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {comparisonData.map((row, i) => (
+                  <tr key={i} className="hover:bg-cyan-500/5">
+                    <td className="text-left p-3 border-b border-slate-800/50 text-gray-300">{row.name}</td>
+                    {plans.map((plan) => (
+                      <td 
+                        key={plan.slug} 
+                        className={`text-center p-3 border-b border-slate-800/50 text-cyan-200/60 ${plan.slug === 'agency' ? 'bg-fuchsia-500/5 font-bold' : ''}`}
+                      >
+                        {cell(row.values[plan.slug])}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
 
         {/* FAQ */}
@@ -512,7 +594,7 @@ export default function Pricing() {
           {FAQS.map((f, i) => (
             <div key={i} onClick={() => setOpenFaq(openFaq === i ? null : i)} className="bg-[#071020] border border-slate-800 p-5 cursor-pointer transition-all hover:border-cyan-500/25">
               <div className="font-black text-xs tracking-wider flex justify-between items-center">
-                {f.q} <span className={`text-cyan-400 transition-transform duration-300 text-[10px] ${openFaq === i ? 'rotate-180' : ''}`}>▼</span>
+                {f.q} <span className={`text-cyan-400 transition-transform duration-300 text-[10px] ${openFaq === i ? 'rotate-180' : ''}`}>â–¼</span>
               </div>
               <div className={`font-mono text-xs text-cyan-200/60 leading-relaxed overflow-hidden transition-all duration-400 ${openFaq === i ? 'max-h-40 pt-2' : 'max-h-0'}`}>
                 {f.a}

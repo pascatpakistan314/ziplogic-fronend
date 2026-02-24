@@ -4,12 +4,12 @@
  * Smart discovery questionnaire shown BETWEEN prompt entry and build start.
  * 
  * Flow:
- * 1. User types prompt → clicks "START BUILD"
- * 2. Instead of starting build, we call POST /api/projects/discover/
+ * 1. User types prompt â†’ clicks "START BUILD"
+ * 2. Instead of starting build, we call POST /api/agents_v3/project/discover/
  * 3. This component renders the questions
- * 4. User answers → clicks "Build It"
- * 5. We call POST /api/projects/enrich/ to get enriched prompt
- * 6. Then POST /api/projects/ with the enriched prompt
+ * 4. User answers â†’ clicks "Build It"
+ * 5. We call POST /api/agents_v3/project/enrich/ to get enriched prompt
+ * 6. Then POST /api/agents_v3/project/ with the enriched prompt
  * 
  * Props:
  *   prompt       - Original user prompt
@@ -37,9 +37,9 @@
 import React, { useState, useEffect } from 'react';
 import api from '../services/api';
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
 // Question Component
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
 
 function QuestionCard({ question, answer, onChange, index }) {
   const { id, question: text, why, type, options, category } = question;
@@ -140,7 +140,7 @@ function QuestionCard({ question, answer, onChange, index }) {
                   <span className={`w-3.5 h-3.5 rounded flex items-center justify-center flex-shrink-0 border ${
                     selected ? 'border-white/60 bg-white/20' : 'border-white/20'
                   }`}>
-                    {selected && <span className="text-white text-[0.6rem]">✓</span>}
+                    {selected && <span className="text-white text-[0.6rem]">âœ“</span>}
                   </span>
                   {opt}
                 </span>
@@ -154,9 +154,9 @@ function QuestionCard({ question, answer, onChange, index }) {
 }
 
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
 // Main Discovery Panel
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
 
 export default function DiscoveryPanel({ prompt, onComplete, onSkip, onBack }) {
   const [phase, setPhase] = useState('analyzing'); // analyzing | questions | enriching
@@ -165,8 +165,9 @@ export default function DiscoveryPanel({ prompt, onComplete, onSkip, onBack }) {
   const [answers, setAnswers] = useState({});
   const [error, setError] = useState(null);
   const [understood, setUnderstood] = useState(null);
+  const [projectName, setProjectName] = useState(''); // NEW: Project name field
   
-  // ── Step 1: Analyze prompt ──────────────────────────────
+  // â”€â”€ Step 1: Analyze prompt â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   useEffect(() => {
     let cancelled = false;
     
@@ -175,7 +176,7 @@ export default function DiscoveryPanel({ prompt, onComplete, onSkip, onBack }) {
         setPhase('analyzing');
         setError(null);
         
-        const res = await api.post('/projects/discover/', { prompt });
+        const res = await api.post('/agents_v3/project/discover/', { prompt });
         
         if (cancelled) return;
         
@@ -200,25 +201,26 @@ export default function DiscoveryPanel({ prompt, onComplete, onSkip, onBack }) {
     return () => { cancelled = true; };
   }, [prompt]);
   
-  // ── Step 2: Handle answer changes ──────────────────────
+  // â”€â”€ Step 2: Handle answer changes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const handleAnswer = (questionId, value) => {
     setAnswers(prev => ({ ...prev, [questionId]: value }));
   };
   
-  // ── Step 3: Enrich and build ───────────────────────────
+  // â”€â”€ Step 3: Enrich and build â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const handleBuild = async () => {
     try {
       setPhase('enriching');
       setError(null);
       
-      const res = await api.post('/projects/enrich/', {
+      const res = await api.post('/agents_v3/project/enrich/', {
         prompt,
         analysis,
         answers
       });
       
       if (res.data.success) {
-        onComplete(res.data.enriched_prompt);
+        // Pass both enriched prompt AND project name
+        onComplete(res.data.enriched_prompt, projectName.trim());
       } else {
         setError(res.data.message || 'Enrichment failed');
         setPhase('questions'); // Go back to questions
@@ -228,20 +230,20 @@ export default function DiscoveryPanel({ prompt, onComplete, onSkip, onBack }) {
       // Fallback: just use original prompt + answers
       const fallback = prompt + '\n\nAdditional details:\n' + 
         questions.map(q => `- ${q.question}: ${answers[q.id] || 'Not specified'}`).join('\n');
-      onComplete(fallback);
+      onComplete(fallback, projectName.trim());
     }
   };
   
-  // ── Count answered questions ───────────────────────────
+  // â”€â”€ Count answered questions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const answeredCount = Object.keys(answers).filter(k => {
     const v = answers[k];
     if (Array.isArray(v)) return v.length > 0;
     return v && v.toString().trim().length > 0;
   }).length;
   
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
   // RENDER
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
   
   // Analyzing phase
   if (phase === 'analyzing') {
@@ -282,7 +284,7 @@ export default function DiscoveryPanel({ prompt, onComplete, onSkip, onBack }) {
       <div className="p-5 rounded-[20px] border border-[rgba(0,255,136,0.15)] backdrop-blur-sm"
            style={{ background: 'rgba(0,255,136,0.03)' }}>
         <div className="flex items-start gap-3">
-          <span className="text-2xl flex-shrink-0">🎯</span>
+          <span className="text-2xl flex-shrink-0">ðŸŽ¯</span>
           <div>
             <h2 className="text-[#00ff88] text-sm font-semibold mb-1" style={{ fontFamily: 'Rajdhani, sans-serif', fontSize: '1.05rem' }}>
               Here's what we understood
@@ -304,6 +306,33 @@ export default function DiscoveryPanel({ prompt, onComplete, onSkip, onBack }) {
         </div>
       </div>
       
+      {/* Project Name Field */}
+      <div className="p-5 rounded-[20px] border border-white/[0.08] backdrop-blur-sm"
+           style={{ background: 'rgba(255,255,255,0.02)' }}>
+        <div className="flex items-start gap-3">
+          <span className="text-2xl flex-shrink-0">ðŸ“›</span>
+          <div className="flex-1">
+            <h3 className="text-white text-sm font-semibold mb-1" style={{ fontFamily: 'Rajdhani, sans-serif', fontSize: '1rem' }}>
+              Project Name (Optional)
+            </h3>
+            <p className="text-white/30 text-xs mb-3" style={{ fontFamily: 'Space Mono, monospace' }}>
+              Give your project a name, or we'll auto-generate one from your description
+            </p>
+            <input
+              type="text"
+              value={projectName}
+              onChange={(e) => setProjectName(e.target.value)}
+              placeholder="e.g., task-manager, ecommerce-store, chat-app"
+              className="w-full px-4 py-2.5 rounded-xl bg-black/30 border border-white/[0.1] text-white placeholder:text-white/20 focus:outline-none focus:border-[#00ff88]/40 text-sm transition-all"
+              style={{ fontFamily: 'Space Mono, monospace' }}
+            />
+            <p className="text-white/20 text-xs mt-1.5" style={{ fontFamily: 'Space Mono, monospace' }}>
+              ðŸ’¡ Use lowercase with dashes (e.g., my-awesome-app)
+            </p>
+          </div>
+        </div>
+      </div>
+      
       {/* Questions header */}
       <div className="flex items-center justify-between">
         <div>
@@ -311,7 +340,7 @@ export default function DiscoveryPanel({ prompt, onComplete, onSkip, onBack }) {
             A few quick questions to nail this
           </h2>
           <p className="text-white/30 text-xs" style={{ fontFamily: 'Space Mono, monospace' }}>
-            {answeredCount}/{questions.length} answered • Answer what you can, skip the rest
+            {answeredCount}/{questions.length} answered â€¢ Answer what you can, skip the rest
           </p>
         </div>
         <button
@@ -319,7 +348,7 @@ export default function DiscoveryPanel({ prompt, onComplete, onSkip, onBack }) {
           className="text-white/30 text-xs hover:text-white/60 transition-colors px-3 py-1.5 rounded-lg border border-white/[0.06] hover:border-white/[0.15]"
           style={{ fontFamily: 'Space Mono, monospace' }}
         >
-          ← Edit prompt
+          â† Edit prompt
         </button>
       </div>
       
@@ -347,11 +376,11 @@ export default function DiscoveryPanel({ prompt, onComplete, onSkip, onBack }) {
       {/* Action buttons */}
       <div className="flex items-center justify-between pt-2">
         <button
-          onClick={onSkip}
+          onClick={() => onSkip(projectName.trim())}
           className="text-white/30 text-xs hover:text-white/50 transition-colors"
           style={{ fontFamily: 'Space Mono, monospace' }}
         >
-          Skip discovery → build with original prompt
+          Skip discovery â†’ build with original prompt
         </button>
         
         <button
@@ -365,7 +394,7 @@ export default function DiscoveryPanel({ prompt, onComplete, onSkip, onBack }) {
             boxShadow: answeredCount > 0 ? '0 0 30px rgba(0,255,136,0.3)' : 'none'
           }}
         >
-          ⚡ BUILD IT ({answeredCount}/{questions.length} answered)
+          âš¡ BUILD IT ({answeredCount}/{questions.length} answered)
         </button>
       </div>
     </div>

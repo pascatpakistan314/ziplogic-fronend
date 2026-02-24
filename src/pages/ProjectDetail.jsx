@@ -170,15 +170,20 @@ export default function ProjectDetail() {
                 )}
               </h1>
               <p className="text-dark-400 text-sm">
-                {project.total_files} files • Generated in {project.execution_time?.toFixed(1)}s
+                {project.total_files} files â€¢ Generated in {project.execution_time?.toFixed(1)}s
               </p>
             </div>
           </div>
           {project.status === 'completed' && (
-            <button onClick={handleDownload} className="btn-primary flex items-center gap-2">
-              <Download className="w-4 h-4" />
-              Download ZIP
-            </button>
+            <div className="flex items-center gap-3">
+              <Link to={`/project/${id}/editor`} className="btn-primary flex items-center gap-2 bg-purple-500/20 text-purple-400 border border-purple-500/30 hover:bg-purple-500/30 px-4 py-2 rounded-lg">
+                ✏️ Edit Project
+              </Link>
+              <button onClick={handleDownload} className="btn-primary flex items-center gap-2">
+                <Download className="w-4 h-4" />
+                Download ZIP
+              </button>
+            </div>
           )}
         </div>
       </div>
