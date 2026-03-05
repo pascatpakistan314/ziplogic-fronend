@@ -120,7 +120,7 @@ body{font-family:'Rajdhani',sans-serif;background:var(--bg);color:var(--text-pri
 .tl{opacity:0;animation:tlFade .4s forwards}
 .tl:nth-child(1){animation-delay:.8s}.tl:nth-child(2){animation-delay:1.5s}.tl:nth-child(3){animation-delay:2.2s}
 .tl:nth-child(4){animation-delay:3s}.tl:nth-child(5){animation-delay:3.8s}.tl:nth-child(6){animation-delay:4.5s}.tl:nth-child(7){animation-delay:5.2s}
-.cursor-b::after{content:'â–ˆ';animation:cBlink 1s step-end infinite;color:#00ff88}
+.cursor-b::after{content:'█';animation:cBlink 1s step-end infinite;color:#00ff88}
 .right-item{opacity:0;animation:rPop .3s forwards}
 .right-item:nth-child(2){animation-delay:5.5s}.right-item:nth-child(3){animation-delay:5.8s}
 .right-item:nth-child(4){animation-delay:6.1s}.right-item:nth-child(5){animation-delay:6.4s}.right-item:nth-child(6){animation-delay:6.7s}
@@ -340,7 +340,7 @@ nav.scrolled{background:var(--nav-bg-scroll)!important;box-shadow:0 4px 40px rgb
       
       // Dynamically import and boot WebContainer
       import('@webcontainer/api').then(wc => {
-        console.log('[Landing] ðŸš€ Pre-booting WebContainer in background...');
+        console.log('[Landing] 🚀 Pre-booting WebContainer in background...');
         window.__webContainerBooting = wc.WebContainer.boot().then(instance => {
           window.__webContainerInstance = instance;
           window.__webContainerBooting = null;
@@ -626,7 +626,7 @@ nav.scrolled{background:var(--nav-bg-scroll)!important;box-shadow:0 4px 40px rgb
             aria-label="Toggle theme"
             onClick={toggleTheme}
           >
-            {theme === "light" ? "â˜€ï¸" : "ðŸŒ™"}
+            {theme === "light" ? "☀️" : "🌙"}
           </button>
 
           <button
@@ -635,7 +635,7 @@ nav.scrolled{background:var(--nav-bg-scroll)!important;box-shadow:0 4px 40px rgb
             type="button"
             onClick={() => go(isAuthenticated ? "/dashboard" : "/login")}
           >
-            OPEN APP â†’
+            OPEN APP’
           </button>
         
 
@@ -702,12 +702,12 @@ nav.scrolled{background:var(--nav-bg-scroll)!important;box-shadow:0 4px 40px rgb
         {/* Badge */}
         <div className="inline-flex items-center gap-2 px-[18px] py-1.5 bg-[rgba(0,255,136,0.08)] border border-[rgba(0,255,136,0.15)] rounded-[30px] font-[Space_Mono,monospace] text-[0.68rem] text-[var(--green)] tracking-[2px] mb-8" style={{ animation: "fadeInUp 0.8s ease both" }}>
           <span className="w-1.5 h-1.5 rounded-full bg-[var(--green)]" style={{ animation: "blink 1.5s infinite" }} />
-          BETA LIVE â€” BUILDING THE FUTURE
+          BETA LIVE — BUILDING THE FUTURE
         </div>
 
         {/* Alien mascot */}
         <div className="relative mb-10" style={{ animation: "fadeInUp 0.8s ease 0s both" }}>
-          <svg id="alienSvg" width="200" height="200" viewBox="0 0 200 200" style={{ filter: "drop-shadow(0 0 25px rgba(0,255,136,0.5))" }}>
+          <svg id="alienSvg" width="230" height="230" viewBox="0 0 200 200" style={{ filter: "drop-shadow(0 0 25px rgba(0,255,136,0.5))" }}>
             <defs>
               <filter id="alienGlow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="4" result="b" /><feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge></filter>
               <linearGradient id="alienBody" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stopColor="#00ff88" /><stop offset="50%" stopColor="#00dd77" /><stop offset="100%" stopColor="#00aa55" /></linearGradient>
@@ -720,8 +720,7 @@ nav.scrolled{background:var(--nav-bg-scroll)!important;box-shadow:0 4px 40px rgb
               <path d="M70 110 Q60 140 70 165 Q85 180 100 180 Q115 180 130 165 Q140 140 130 110" fill="url(#alienBodyDark)" />
               <ellipse cx="100" cy="75" rx="55" ry="50" fill="url(#alienBody)" />
               <ellipse cx="100" cy="75" rx="55" ry="50" fill="url(#alienShine)" />
-              <path d="M60 55 Q100 45 140 55" stroke="#00aa55" strokeWidth="1" fill="none" opacity="0.5" />
-              <path d="M55 70 Q100 60 145 70" stroke="#00aa55" strokeWidth="1" fill="none" opacity="0.3" />
+              
             </g>
             <g opacity="0.5"><path d="M78 48 L122 48 L85 70 L122 70" stroke="#003322" strokeWidth="3.5" fill="none" strokeLinecap="round" strokeLinejoin="round" /></g>
             <ellipse cx="70" cy="85" rx="22" ry="18" fill="#002815" />
@@ -790,12 +789,12 @@ nav.scrolled{background:var(--nav-bg-scroll)!important;box-shadow:0 4px 40px rgb
             <div className="terminal-body grid grid-cols-2 min-h-[280px]">
               <div className="terminal-left p-[22px_24px] border-r border-white/[0.06] font-[Space_Mono,monospace] text-[0.75rem] leading-8">
                 <div className="tl"><span className="text-white/[0.35]">$</span> <span className="text-[#00ff88]">ziplogic</span> <span className="text-white/85">generate</span></div>
-                <div className="tl"><span className="text-white/[0.35]">â€º</span> <span className="text-[#00ddff]">Analyzing requirements...</span></div>
-                <div className="tl"><span className="text-white/[0.35]">â€º</span> <span className="text-white/85">Planning architecture</span></div>
-                <div className="tl"><span className="text-white/[0.35]">â€º</span> <span className="text-[#00ff88]">âœ“</span> <span className="text-white/85">React frontend scaffolded</span></div>
-                <div className="tl"><span className="text-white/[0.35]">â€º</span> <span className="text-[#00ff88]">âœ“</span> <span className="text-white/85">API routes generated</span></div>
-                <div className="tl"><span className="text-white/[0.35]">â€º</span> <span className="text-[#00ff88]">âœ“</span> <span className="text-white/85">Database models created</span></div>
-                <div className="tl"><span className="text-white/[0.35]">â€º</span> <span className="text-[#00ff88]">âœ“ Build complete</span> <span className="text-white/[0.35]">â€” 47s</span><span className="cursor-b"></span></div>
+                <div className="tl"><span className="text-white/[0.35]">›</span> <span className="text-[#00ddff]">Analyzing requirements...</span></div>
+                <div className="tl"><span className="text-white/[0.35]">›</span> <span className="text-white/85">Planning architecture</span></div>
+                <div className="tl"><span className="text-white/[0.35]">›</span> <span className="text-[#00ff88]">✔</span> <span className="text-white/85">React frontend scaffolded</span></div>
+                <div className="tl"><span className="text-white/[0.35]">›</span> <span className="text-[#00ff88]">✔</span> <span className="text-white/85">API routes generated</span></div>
+                <div className="tl"><span className="text-white/[0.35]">›</span> <span className="text-[#00ff88]">✔</span> <span className="text-white/85">Database models created</span></div>
+                <div className="tl"><span className="text-white/[0.35]">›</span> <span className="text-[#00ff88]">✔ Build complete</span> <span className="text-white/[0.35]">— 47s</span><span className="cursor-b"></span></div>
               </div>
               <div className="p-[22px_24px] font-[Space_Mono,monospace] text-[0.75rem]">
                 <div className="text-[0.65rem] text-white/[0.35] tracking-[2px] mb-3.5">AGENT_NETWORK</div>
@@ -804,7 +803,7 @@ nav.scrolled{background:var(--nav-bg-scroll)!important;box-shadow:0 4px 40px rgb
                 <div className="right-item flex items-center gap-2.5 py-1.5 text-white/70"><span className="w-2 h-2 rounded-full bg-[#00ff88] shadow-[0_0_8px_#00ff88]" /><span className="text-white/85">Full build validated</span></div>
                 <div className="right-item flex items-center gap-2.5 py-1.5 text-white/70"><span className="w-2 h-2 rounded-full bg-[#8844ff] shadow-[0_0_8px_#8844ff]" /><span className="text-white/85">Deploy-ready application</span></div>
                 <div className="right-item flex items-center gap-2.5 py-1.5 text-white/70 mt-4" style={{ animationDelay: "7.2s" }}>
-                  <span className="text-white/[0.35] text-[0.68rem]">INFO: Deploy to production â€” npm run build.</span>
+                  <span className="text-white/[0.35] text-[0.68rem]">INFO: Deploy to production — npm run build.</span>
                 </div>
               </div>
             </div>
@@ -839,8 +838,8 @@ nav.scrolled{background:var(--nav-bg-scroll)!important;box-shadow:0 4px 40px rgb
         <div className="pipeline-grid max-w-[1100px] mx-auto mt-16 grid grid-cols-3 gap-8 relative">
           <div className="pipeline-line absolute top-[55px] left-[16%] right-[16%] h-[2px]" style={{ background: "linear-gradient(90deg,transparent,var(--green),var(--cyan),var(--purple),transparent)", opacity: 0.2 }} />
           {[
-            { n: "01", cls: "n1", title: "PLANNER", desc: "Analyzes your prompt. Maps requirements to architecture, decides tech stack, and produces a structured build plan â€” before a single line of code is written.", bg: "rgba(0,255,136,0.1)", color: "var(--green)", border: "rgba(0,255,136,0.2)" },
-            { n: "02", cls: "n2", title: "DEVELOPER", desc: "Generates production-grade code file by file â€” frontend, backend, database schemas, auth, and API routes. Streamed to you in real time via WebSocket.", bg: "rgba(0,221,255,0.1)", color: "var(--cyan)", border: "rgba(0,221,255,0.2)" },
+            { n: "01", cls: "n1", title: "PLANNER", desc: "Analyzes your prompt. Maps requirements to architecture, decides tech stack, and produces a structured build plan — before a single line of code is written.", bg: "rgba(0,255,136,0.1)", color: "var(--green)", border: "rgba(0,255,136,0.2)" },
+            { n: "02", cls: "n2", title: "DEVELOPER", desc: "Generates production-grade code file by file — frontend, backend, database schemas, auth, and API routes. Streamed to you in real time via WebSocket.", bg: "rgba(0,221,255,0.1)", color: "var(--cyan)", border: "rgba(0,221,255,0.2)" },
             { n: "03", cls: "n3", title: "EXECUTOR", desc: "Spins up a Docker container, installs dependencies, runs your project, and gives you a live preview link. Fully reproducible. Every time.", bg: "rgba(136,68,255,0.1)", color: "var(--purple)", border: "rgba(136,68,255,0.2)" },
           ].map((c, i) => (
             <div key={c.n} className={`text-center p-12 px-8 rounded-[20px] transition-all duration-400 hover:-translate-y-2 hover:shadow-[0_25px_70px_var(--card-shadow)] border reveal reveal-d${i + 1}`} style={{ background: "var(--surface)", borderColor: "var(--border)" }}>
@@ -864,12 +863,12 @@ nav.scrolled{background:var(--nav-bg-scroll)!important;box-shadow:0 4px 40px rgb
 
         <div className="features-grid max-w-[1100px] mx-auto mt-16 grid grid-cols-2 gap-6">
           {[
-            { icon: "âš¡", title: "FULL APPLICATION GENERATION", desc: "From a single prompt to a complete working application â€” frontend views, backend logic, database, and authentication. Not scaffolding. Real code." },
-            { icon: "ðŸ“¡", title: "REAL-TIME STREAMING", desc: "Watch your application being built live. Every file streams via WebSocket â€” you see exactly what's being generated, as it happens." },
-            { icon: "ðŸ§ ", title: "MULTI-AGENT ARCHITECTURE", desc: "Three specialized AI agents collaborate: the Planner architects, the Developer codes, the Executor runs. Each optimized for its job." },
-            { icon: "ðŸ³", title: "INSTANT DOCKER PREVIEW", desc: "Every project runs in an isolated Docker container. See your working app within seconds. No local setup required." },
-            { icon: "ðŸŽ¯", title: "SMART TEMPLATES + CUSTOM CODE", desc: "Uses proven templates when they fit, generates fully custom code when needed. Best of both worlds â€” speed and flexibility." },
-            { icon: "ðŸ”„", title: "DETERMINISTIC & REPRODUCIBLE", desc: "Same prompt, same output. Fully testable, auditable, version-controlled. Ship with confidence." },
+            { icon: "⚡", title: "FULL APPLICATION GENERATION", desc: "From a single prompt to a complete working application — frontend views, backend logic, database, and authentication. Not scaffolding. Real code." },
+            { icon: "📡", title: "REAL-TIME STREAMING", desc: "Watch your application being built live. Every file streams via WebSocket — you see exactly what's being generated, as it happens." },
+            { icon: "🧠", title: "MULTI-AGENT ARCHITECTURE", desc: "Three specialized AI agents collaborate: the Planner architects, the Developer codes, the Executor runs. Each optimized for its job." },
+            { icon: "🐳", title: "INSTANT DOCKER PREVIEW", desc: "Every project runs in an isolated Docker container. See your working app within seconds. No local setup required." },
+            { icon: "🎯", title: "SMART TEMPLATES + CUSTOM CODE", desc: "Uses proven templates when they fit, generates fully custom code when needed. Best of both worlds — speed and flexibility." },
+            { icon: "🔄", title: "DETERMINISTIC & REPRODUCIBLE", desc: "Same prompt, same output. Fully testable, auditable, version-controlled. Ship with confidence." },
           ].map((f, i) => (
             <div key={f.title} className={`feat-card p-10 rounded-[20px] transition-all duration-400 relative overflow-hidden hover:-translate-y-1 hover:shadow-[0_15px_50px_var(--card-shadow)] border reveal ${i % 2 === 0 ? "reveal-d1" : "reveal-d2"}`} style={{ background: "var(--surface)", borderColor: "var(--border)" }}>
               <div className="w-12 h-12 mb-5 rounded-[14px] flex items-center justify-center text-[1.3rem] border border-[rgba(0,255,136,0.12)]" style={{ background: "linear-gradient(135deg,rgba(0,255,136,0.1),rgba(0,255,136,0.02))" }}>{f.icon}</div>
@@ -892,9 +891,9 @@ nav.scrolled{background:var(--nav-bg-scroll)!important;box-shadow:0 4px 40px rgb
 
         <div className="audience-grid max-w-[1100px] mx-auto mt-16 grid grid-cols-3 gap-6">
           {[
-            { emoji: "ðŸ¢", title: "AGENCIES", items: ["Ship client projects faster", "Consistent code quality across projects", "Turn your process into repeatable workflows"] },
-            { emoji: "ðŸš€", title: "STARTUPS", items: ["MVP in days, not weeks", "Production quality from day one", "Iterate fast without breaking things"] },
-            { emoji: "ðŸ’»", title: "DEVELOPERS", items: ["Eliminate boilerplate forever", "Stay in the zone â€” focus on logic", "Reproducible, sharable starting points"] },
+            { emoji: "🏢", title: "AGENCIES", items: ["Ship client projects faster", "Consistent code quality across projects", "Turn your process into repeatable workflows"] },
+            { emoji: "🚀", title: "STARTUPS", items: ["MVP in days, not weeks", "Production quality from day one", "Iterate fast without breaking things"] },
+            { emoji: "💻", title: "DEVELOPERS", items: ["Eliminate boilerplate forever", "Stay in the zone — focus on logic", "Reproducible, sharable starting points"] },
           ].map((c, i) => (
             <div key={c.title} className={`p-12 px-8 rounded-[20px] text-center transition-all duration-400 hover:-translate-y-1.5 hover:shadow-[0_20px_60px_var(--card-shadow)] border reveal reveal-d${i + 1}`} style={{ background: "var(--surface)", borderColor: "var(--border)" }}>
               <span className="text-[2.5rem] mb-5 block">{c.emoji}</span>
@@ -902,7 +901,7 @@ nav.scrolled{background:var(--nav-bg-scroll)!important;box-shadow:0 4px 40px rgb
               <ul className="list-none p-0 text-left">
                 {c.items.map((item) => (
                   <li key={item} className="py-1.5 text-[var(--text-body)] text-[0.9rem] flex items-start gap-2.5">
-                    <span className="text-[var(--green)] font-semibold shrink-0">â†’</span>{item}
+                    <span className="text-[var(--green)] font-semibold shrink-0">→</span>{item}
                   </li>
                 ))}
               </ul>
@@ -960,7 +959,7 @@ nav.scrolled{background:var(--nav-bg-scroll)!important;box-shadow:0 4px 40px rgb
             <ul className="list-none p-0 mb-8 flex-1">
               {plan.features.map((feature, i) => (
                 <li key={i} className="py-1.5 text-[var(--text-body)] text-[0.84rem] flex items-center gap-2">
-                  <span className="text-[var(--green)] font-bold shrink-0">âœ“</span>{feature}
+                  <span className="text-[var(--green)] font-bold shrink-0">✔</span>{feature}
                 </li>
               ))}
             </ul>
@@ -1010,10 +1009,10 @@ nav.scrolled{background:var(--nav-bg-scroll)!important;box-shadow:0 4px 40px rgb
           <h2 className="font-[Orbitron,sans-serif] text-[clamp(1.8rem,3.5vw,2.8rem)] font-bold mb-4 text-[var(--text-primary)] reveal"><span className="gradient">FAQ</span></h2>
         </div>
         <div className="max-w-[720px] mx-auto mt-12">
-          <FaqItem q="What is ZipLogic AI?" a="ZipLogic AI is an autonomous multi-agent system that generates complete, production-ready web applications from natural language descriptions. It plans, writes code, and runs everything in Docker â€” in about 60 seconds." />
+          <FaqItem q="What is ZipLogic AI?" a="ZipLogic AI is an autonomous multi-agent system that generates complete, production-ready web applications from natural language descriptions. It plans, writes code, and runs everything in Docker — in about 60 seconds." />
           <FaqItem q="What kind of apps can it build?" a="Full-stack web applications including dashboards, CRUD apps, SaaS tools, landing pages, admin panels, and more. Generates React frontends, Node.js or Django backends, database models, and authentication." />
           <FaqItem q="Do I own the generated code?" a="Yes, 100%. Every line of code is yours to use, modify, and deploy commercially. Download it, push it to your repo, deploy it anywhere." />
-          <FaqItem q="How is this different from other AI coding tools?" a="Most AI tools help you write individual files or answer questions. ZipLogic builds entire applications end-to-end â€” a multi-agent pipeline handling architecture, generation, and execution as one autonomous workflow." />
+          <FaqItem q="How is this different from other AI coding tools?" a="Most AI tools help you write individual files or answer questions. ZipLogic builds entire applications end-to-end — a multi-agent pipeline handling architecture, generation, and execution as one autonomous workflow." />
           <FaqItem q="Is the beta free to try?" a="Yes. The free tier gives you 5 builds per month. No credit card required." />
         </div>
       </section>

@@ -16,12 +16,17 @@ import {
 // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // VERSION - Cloudflare Preview System (No WebContainer!)
 // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-const ZIPLOGIC_VERSION = 'v3.0.0-CLOUDFLARE'
+const ZIPLOGIC_VERSION = 'v3.1.0-WS-FIX'
 console.log('%c[ZipLogic] ðŸš€ Dashboard.jsx ' + ZIPLOGIC_VERSION, 'background: #00ddff; color: black; font-size: 14px; padding: 4px 8px; border-radius: 4px;')
 
-// Config
-const BACKEND_PORT = import.meta.env.VITE_BACKEND_PORT || '8001'
-const BACKEND_BASE = `${window.location.protocol}//${window.location.hostname}:${BACKEND_PORT}`
+// Config - WebSocket/API connects to api subdomain, not frontend
+const API_HOST = (() => {
+  try {
+    const apiUrl = import.meta.env.VITE_API_URL
+    if (apiUrl) return new URL(apiUrl).host
+  } catch {}
+  return window.location.hostname
+})()
 
 /* ============================================
    INJECTED GLOBAL STYLES (animations + fonts + scrollbar)
@@ -195,12 +200,71 @@ const LivePreviewCard = ({ projectId, status, autoStart = false }) => {
   const pollIntervalRef = useRef(null)
   const [aiFixing, setAiFixing] = useState(false)
   const [aiFixStatus, setAiFixStatus] = useState('')
+  const [browserErrors, setBrowserErrors] = useState([])
+
+  // Listen for browser errors from iframe (postMessage)
+  useEffect(() => {
+    const handler = (event) => {
+      if (event.data && event.data.type === 'PREVIEW_ERROR' && event.data.errors) {
+        const newErrors = event.data.errors.map(e => ({
+          type: 'error',
+          text: `[Browser] ${e.type}: ${e.message}${e.source ? ` (${e.source}:${e.line}:${e.col})` : ''}`,
+          stack: e.stack || '',
+          time: new Date().toLocaleTimeString()
+        }))
+        setBrowserErrors(prev => {
+          // Deduplicate by message
+          const existing = new Set(prev.map(e => e.text))
+          const unique = newErrors.filter(e => !existing.has(e.text))
+          return [...prev, ...unique].slice(-50) // Keep last 50
+        })
+        // Also add to console logs for display
+        newErrors.forEach(e => {
+          setConsoleLogs(prev => {
+            if (prev.some(l => l.text === e.text)) return prev
+            return [...prev, e].slice(-100)
+          })
+        })
+      }
+    }
+    window.addEventListener('message', handler)
+    return () => window.removeEventListener('message', handler)
+  }, [])
 
   const handleAiFix = async () => {
     const errorLogs = consoleLogs.filter(l => l.type === 'error')
-    if (errorLogs.length === 0 && !error) return
+    const allBrowserErrors = browserErrors
+    if (errorLogs.length === 0 && allBrowserErrors.length === 0 && !error) return
     
-    const errorText = error || errorLogs[errorLogs.length - 1]?.text || 'Unknown error'
+    // Prioritize browser errors (actual runtime errors from iframe)
+    let primaryError = ''
+    let allErrorsText = ''
+    
+    if (allBrowserErrors.length > 0) {
+      // Use browser errors — these are REAL runtime errors
+      primaryError = allBrowserErrors[allBrowserErrors.length - 1]?.text || ''
+      allErrorsText = allBrowserErrors.map(e => `${e.text}${e.stack ? '\nStack: ' + e.stack : ''}`).join('\n\n')
+    } else {
+      // Fallback to console logs (server-side compile errors)
+      const filtered = errorLogs
+        .filter(l => !l.text.includes('AI Fix error') && !l.text.includes('AI Fix failed') && !l.text.includes('Request failed'))
+      primaryError = error || filtered[filtered.length - 1]?.text || errorLogs[errorLogs.length - 1]?.text || 'Unknown error'
+      allErrorsText = filtered.map(l => l.text).join('\n')
+    }
+    
+    // Also get server-side logs for more context
+    let serverErrors = ''
+    try {
+      const logsRes = await api.get(`/agents_v3/preview/logs/?project_id=${projectId}&last=50`)
+      if (logsRes.data.success && logsRes.data.logs) {
+        serverErrors = logsRes.data.logs
+          .filter(l => l.type === 'error' || (l.text && l.text.toLowerCase().includes('error')))
+          .map(l => l.text || l.message)
+          .join('\n')
+      }
+    } catch (e) { /* ignore */ }
+    
+    const fullError = `Frontend Error: ${primaryError}\n\nAll Errors:\n${allErrorsText}\n\nServer Logs:\n${serverErrors}`
     
     setAiFixing(true)
     setAiFixStatus('fixing')
@@ -209,9 +273,9 @@ const LivePreviewCard = ({ projectId, status, autoStart = false }) => {
     try {
       const response = await api.post('/agents_v3/preview/browser-errors/fix/', {
         project_id: projectId,
-        error_message: errorText,
+        error_message: fullError.substring(0, 2000),
         error_file: '',
-        error_stack: errorLogs.map(l => l.text).join('\n'),
+        error_stack: allErrors.substring(0, 1000),
         page_url: previewUrl || ''
       })
       
@@ -310,8 +374,15 @@ const LivePreviewCard = ({ projectId, status, autoStart = false }) => {
       pollIntervalRef.current = null
     }
     
+    // Full reset — allows fresh restart on next click
     setPreviewStatus('idle')
     setPreviewUrl(null)
+    setError(null)
+    setIframeLoaded(false)
+    setRunMode(null)
+    setIsFixing(false)
+    setFixMessage('')
+    setConsoleLogs([])
     startedRef.current = false
   }, [projectId])
 
@@ -334,12 +405,23 @@ const LivePreviewCard = ({ projectId, status, autoStart = false }) => {
                 setFixMessage('')
               }, 5000)
             }
+            
+            // Add error logs to consoleLogs so hasErrors triggers AI Fix button
+            const logText = log.text || log.message || ''
+            const logType = log.type || 'info'
+            if (logText) {
+              setConsoleLogs(prev => {
+                if (prev.some(l => l.text === logText)) return prev
+                const newType = (logType === 'error' || logText.toLowerCase().includes('error') || logText.includes('500')) ? 'error' : logType
+                return [...prev.slice(-50), { type: newType, text: logText, time: new Date().toLocaleTimeString() }]
+              })
+            }
           })
         }
       } catch (err) {
         // Silently fail - just polling
       }
-    }, 5000)
+    }, 3000)
   }, [projectId])
 
   // Auto-start when status=completed and autoStart=true
@@ -520,14 +602,23 @@ const LivePreviewCard = ({ projectId, status, autoStart = false }) => {
    ============================================ */
 const PreviewModal = ({ project, isOpen, onClose }) => {
   if (!isOpen || !project) return null
+  
+  // Stop preview when closing modal
+  const handleClose = async () => {
+    try {
+      await api.post('/agents_v3/preview/stop/', { project_id: project.id })
+    } catch {}
+    onClose()
+  }
+  
   return (
-    <div className="fixed inset-0 z-[9000] flex items-center justify-center bg-black/85 backdrop-blur-lg" onClick={onClose}>
+    <div className="fixed inset-0 z-[9000] flex items-center justify-center bg-black/85 backdrop-blur-lg" onClick={handleClose}>
       <div className="w-[90vw] h-[85vh] max-w-[1400px] overflow-hidden relative border border-cyan-500/30 bg-[#071020]" onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between px-5 py-3 border-b border-white/[0.08] bg-[rgba(5,13,24,0.9)]">
           <span className="font-orbitron text-xs font-semibold tracking-[2px] text-cyan-400">{project.name?.toUpperCase()}</span>
           <div className="flex items-center gap-3">
             <span className="font-mono-space text-xs text-white/50">{project.name}</span>
-            <button onClick={onClose} className="w-8 h-8 flex items-center justify-center border border-white/10 text-white/60 hover:border-red-500/50 hover:text-red-400 transition-all">
+            <button onClick={handleClose} className="w-8 h-8 flex items-center justify-center border border-white/10 text-white/60 hover:border-red-500/50 hover:text-red-400 transition-all">
               <X size={16} />
             </button>
           </div>

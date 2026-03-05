@@ -130,7 +130,7 @@ export const useAuthStore = create(
             }
             return { success: true };
           } else if (data.needs_verification) {
-            return { success: false, error: 'Please verify your email first', needs_verification: true, email: data.email };
+            return { success: false, needs_verification: true, email: data.email, error: data.message || 'Please verify your email first' };
           } else {
             return { success: false, error: data.message || data.error || 'Login failed' };
           }
@@ -177,13 +177,17 @@ export const useAuthStore = create(
         set({ isLoading: true });
         try {
           const response = await authAPI.verifyOTP({ email, otp });
-          const { user, tokens } = response.data;
-          get().setAuth(user, tokens.access, tokens.refresh);
-          return { success: true };
+          const data = response.data;
+          
+          if (data.success && data.access && data.user) {
+            get().setAuth(data.user, data.access, data.refresh);
+            return { success: true };
+          }
+          return { success: false, error: data.message || 'Verification failed' };
         } catch (error) {
           return { 
             success: false, 
-            error: error.response?.data?.message || 'Invalid OTP'
+            error: error.response?.data?.error || error.response?.data?.message || 'Invalid or expired code'
           };
         } finally {
           set({ isLoading: false });

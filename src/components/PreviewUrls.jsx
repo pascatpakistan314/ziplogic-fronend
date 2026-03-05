@@ -9,7 +9,7 @@ export default function PreviewUrls({ urls }) {
     <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
       <div className="flex items-center space-x-2 mb-6">
         <Rocket className="w-6 h-6 text-green-600" />
-        <h3 className="text-xl font-bold text-gray-900">ðŸŽ‰ Your App is Running!</h3>
+        <h3 className="text-xl font-bold text-gray-900">🎉 Your App is Running!</h3>
         <div className="flex items-center space-x-2 ml-auto">
           <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
           <span className="text-sm text-gray-600">Live</span>
@@ -84,7 +84,7 @@ export default function PreviewUrls({ urls }) {
         <div className="flex items-start space-x-3">
           <Rocket className="w-6 h-6 text-blue-600 flex-shrink-0 mt-1" />
           <div>
-            <h4 className="font-bold text-gray-900 mb-2">ðŸŽ‰ Your App is Running in Docker!</h4>
+            <h4 className="font-bold text-gray-900 mb-2">🎉 Your App is Running in Docker!</h4>
             <p className="text-sm text-gray-700 mb-3">
               Your complete application is running with all dependencies installed. Click the links above to open in new tabs.
             </p>

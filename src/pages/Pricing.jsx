@@ -17,12 +17,12 @@ const ICON_MAP = {
 // Feature comparison will be generated dynamically from plans
 
 const FAQS = [
-  { q: 'Can I switch plans anytime?', a: 'Yes â€” upgrade or downgrade at any time. Prorated billing on upgrades.' },
+  { q: 'Can I switch plans anytime?', a: 'Yes — upgrade or downgrade at any time. Prorated billing on upgrades.' },
   { q: 'What happens if I downgrade?', a: 'Projects remain intact but read-only beyond your new limit.' },
   { q: 'Do you offer refunds?', a: '14-day money-back guarantee on all paid plans.' },
   { q: 'Is there an enterprise plan?', a: 'Contact us for custom integrations and higher limits.' },
   { q: 'What payment methods?', a: 'All major credit cards via Stripe, PayPal, and wire transfer for annual Agency.' },
-  { q: 'How does AI generation work?', a: 'Multi-agent pipeline: Architect â†’ Developer â†’ Tester â†’ Reviewer.' },
+  { q: 'How does AI generation work?', a: 'Multi-agent pipeline: Architect → Developer → Tester → Reviewer.' },
 ]
 
 // ==================== BOOT OVERLAY ====================
@@ -397,7 +397,7 @@ export default function Pricing() {
     finally { setLoading(null) }
   }
 
-  const cell = (v) => v === true ? <span className="text-emerald-400">âœ“</span> : v === false ? <span className="text-slate-600">â€”</span> : v
+  const cell = (v) => v === true ? <span className="text-emerald-400">✓</span> : v === false ? <span className="text-slate-600">—</span> : v
 
   return (
     <div className="bg-[#020810] text-gray-200 min-h-screen relative">
@@ -425,7 +425,7 @@ export default function Pricing() {
         <div className="text-center mb-14">
           <div className="inline-flex items-center gap-2 font-mono text-xs tracking-[2px] text-cyan-400 bg-cyan-500/10 border border-cyan-500/25 px-5 py-1.5 mb-6">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_#00ff88] animate-pulse" />
-            PRICING MATRIX â€” SELECT CLEARANCE LEVEL
+            PRICING MATRIX — SELECT CLEARANCE LEVEL
           </div>
           <h1 className="text-3xl md:text-5xl font-black tracking-[6px] uppercase leading-tight mb-4">
             CHOOSE YOUR{' '}
@@ -467,7 +467,7 @@ export default function Pricing() {
                 {/* Popular banner */}
                 {p.popular && (
                   <div className="text-center py-2 bg-gradient-to-r from-fuchsia-500/20 to-cyan-500/10 text-fuchsia-400 font-black text-[9px] tracking-[3px] border-b border-fuchsia-500/20">
-                    â˜… MOST POPULAR â€” BEST VALUE â˜…
+                    ★ MOST POPULAR — BEST VALUE ★
                   </div>
                 )}
 
@@ -517,7 +517,7 @@ export default function Pricing() {
                   <ul className="mb-6 space-y-0">
                     {p.features.map((f, i) => (
                       <li key={i} className="flex items-center gap-2 font-mono text-xs text-cyan-200/60 py-1.5 border-b border-slate-800/50 last:border-0">
-                        <span className={`text-[10px] ${p.tier === 'agency' ? 'text-fuchsia-400' : p.color}`}>âœ“</span> {f}
+                        <span className={`text-[10px] ${p.tier === 'agency' ? 'text-fuchsia-400' : p.color}`}>✓</span> {f}
                         {p.popular && i >= 5 && <span className="ml-auto font-black text-[8px] tracking-wider text-amber-400 bg-amber-500/20 px-1.5 py-0.5">NEW</span>}
                       </li>
                     ))}
@@ -560,7 +560,7 @@ export default function Pricing() {
                       key={plan.slug} 
                       className={`text-center font-black text-[10px] tracking-[2px] p-3.5 border-b-2 border-slate-800 ${plan.slug === 'agency' ? 'text-fuchsia-400 bg-fuchsia-500/5' : ''}`}
                     >
-                      {plan.name} {plan.slug === 'agency' ? 'â˜…' : ''}
+                      {plan.name} {plan.slug === 'agency' ? '★' : ''}
                     </th>
                   ))}
                 </tr>
@@ -594,7 +594,7 @@ export default function Pricing() {
           {FAQS.map((f, i) => (
             <div key={i} onClick={() => setOpenFaq(openFaq === i ? null : i)} className="bg-[#071020] border border-slate-800 p-5 cursor-pointer transition-all hover:border-cyan-500/25">
               <div className="font-black text-xs tracking-wider flex justify-between items-center">
-                {f.q} <span className={`text-cyan-400 transition-transform duration-300 text-[10px] ${openFaq === i ? 'rotate-180' : ''}`}>â–¼</span>
+                {f.q} <span className={`text-cyan-400 transition-transform duration-300 text-[10px] ${openFaq === i ? 'rotate-180' : ''}`}>▼</span>
               </div>
               <div className={`font-mono text-xs text-cyan-200/60 leading-relaxed overflow-hidden transition-all duration-400 ${openFaq === i ? 'max-h-40 pt-2' : 'max-h-0'}`}>
                 {f.a}

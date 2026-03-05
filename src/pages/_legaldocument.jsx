@@ -95,7 +95,7 @@ export default function ZipLogicLegal() {
           onClick={() => setNav(!nav)}
           className="bg-slate-800 border border-slate-600 text-cyan-400 px-4 py-2 rounded-lg text-sm font-bold hover:bg-slate-700 transition-colors shadow-lg"
         >
-          {nav ? "âœ• Close" : "â˜° Navigate"}
+          {nav ? "✕ Close" : "☰ Navigate"}
         </button>
         {nav && (
           <div className="absolute right-0 mt-2 w-56 bg-slate-800 border border-slate-600 rounded-lg shadow-2xl overflow-hidden">

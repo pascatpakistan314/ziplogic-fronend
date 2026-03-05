@@ -12,10 +12,12 @@
  * 6. Then POST /api/agents_v3/project/ with the enriched prompt
  * 
  * Props:
- *   prompt       - Original user prompt
- *   onComplete   - Called with (enrichedPrompt) when user finishes discovery
- *   onSkip       - Called when user clicks "Skip & Build Now" (uses raw prompt)
- *   onBack       - Called when user wants to edit their prompt
+ *   prompt              - Original user prompt
+ *   onComplete          - Called with (enrichedPrompt) when user finishes discovery (legacy HTTP flow)
+ *   onSkip              - Called when user clicks "Skip & Build Now" (legacy HTTP flow)
+ *   onBack              - Called when user wants to edit their prompt
+ *   questionsOverride   - If provided, skip HTTP discovery and show these questions
+ *   onSubmitAnswers     - If provided, called with (answers) and does NOT call onComplete/onSkip
  * 
  * INTEGRATION INTO NewProject.jsx:
  * Replace the direct api.post('/projects/', { prompt }) in submit() with:
@@ -140,7 +142,7 @@ function QuestionCard({ question, answer, onChange, index }) {
                   <span className={`w-3.5 h-3.5 rounded flex items-center justify-center flex-shrink-0 border ${
                     selected ? 'border-white/60 bg-white/20' : 'border-white/20'
                   }`}>
-                    {selected && <span className="text-white text-[0.6rem]">âœ“</span>}
+                    {selected && <span className="text-white text-[0.6rem]">✓</span>}
                   </span>
                   {opt}
                 </span>
@@ -158,7 +160,7 @@ function QuestionCard({ question, answer, onChange, index }) {
 // Main Discovery Panel
 // â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
 
-export default function DiscoveryPanel({ prompt, onComplete, onSkip, onBack }) {
+export default function DiscoveryPanel({ prompt, onComplete, onSkip, onBack, questionsOverride = null, onSubmitAnswers = null }) {
   const [phase, setPhase] = useState('analyzing'); // analyzing | questions | enriching
   const [analysis, setAnalysis] = useState(null);
   const [questions, setQuestions] = useState([]);
@@ -170,16 +172,24 @@ export default function DiscoveryPanel({ prompt, onComplete, onSkip, onBack }) {
   // â”€â”€ Step 1: Analyze prompt â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   useEffect(() => {
     let cancelled = false;
-    
+
+    // WS-driven discovery (Module 11): questions provided by backend via WebSocket
+    if (Array.isArray(questionsOverride) && questionsOverride.length > 0) {
+      setPhase('questions');
+      setQuestions(questionsOverride);
+      setError(null);
+      return () => { cancelled = true; };
+    }
+
     async function discover() {
       try {
         setPhase('analyzing');
         setError(null);
-        
+
         const res = await api.post('/agents_v3/project/discover/', { prompt });
-        
+
         if (cancelled) return;
-        
+
         if (res.data.success) {
           const discovery = res.data.discovery;
           setAnalysis(discovery);
@@ -196,10 +206,10 @@ export default function DiscoveryPanel({ prompt, onComplete, onSkip, onBack }) {
         }
       }
     }
-    
+
     discover();
     return () => { cancelled = true; };
-  }, [prompt]);
+  }, [prompt, questionsOverride]);
   
   // â”€â”€ Step 2: Handle answer changes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const handleAnswer = (questionId, value) => {
@@ -208,16 +218,23 @@ export default function DiscoveryPanel({ prompt, onComplete, onSkip, onBack }) {
   
   // â”€â”€ Step 3: Enrich and build â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const handleBuild = async () => {
+    // WS-driven discovery: just submit answers back to backend
+    if (typeof onSubmitAnswers === 'function') {
+      onSubmitAnswers(answers);
+      return;
+    }
+
+    // Legacy HTTP enrichment flow
     try {
       setPhase('enriching');
       setError(null);
-      
+
       const res = await api.post('/agents_v3/project/enrich/', {
         prompt,
         analysis,
         answers
       });
-      
+
       if (res.data.success) {
         // Pass both enriched prompt AND project name
         onComplete(res.data.enriched_prompt, projectName.trim());
@@ -228,7 +245,7 @@ export default function DiscoveryPanel({ prompt, onComplete, onSkip, onBack }) {
     } catch (e) {
       console.error('Enrichment error:', e);
       // Fallback: just use original prompt + answers
-      const fallback = prompt + '\n\nAdditional details:\n' + 
+      const fallback = prompt + '\n\nAdditional details:\n' +
         questions.map(q => `- ${q.question}: ${answers[q.id] || 'Not specified'}`).join('\n');
       onComplete(fallback, projectName.trim());
     }
@@ -284,7 +301,7 @@ export default function DiscoveryPanel({ prompt, onComplete, onSkip, onBack }) {
       <div className="p-5 rounded-[20px] border border-[rgba(0,255,136,0.15)] backdrop-blur-sm"
            style={{ background: 'rgba(0,255,136,0.03)' }}>
         <div className="flex items-start gap-3">
-          <span className="text-2xl flex-shrink-0">ðŸŽ¯</span>
+          <span className="text-2xl flex-shrink-0">🎯</span>
           <div>
             <h2 className="text-[#00ff88] text-sm font-semibold mb-1" style={{ fontFamily: 'Rajdhani, sans-serif', fontSize: '1.05rem' }}>
               Here's what we understood
@@ -310,7 +327,7 @@ export default function DiscoveryPanel({ prompt, onComplete, onSkip, onBack }) {
       <div className="p-5 rounded-[20px] border border-white/[0.08] backdrop-blur-sm"
            style={{ background: 'rgba(255,255,255,0.02)' }}>
         <div className="flex items-start gap-3">
-          <span className="text-2xl flex-shrink-0">ðŸ“›</span>
+          <span className="text-2xl flex-shrink-0">📛</span>
           <div className="flex-1">
             <h3 className="text-white text-sm font-semibold mb-1" style={{ fontFamily: 'Rajdhani, sans-serif', fontSize: '1rem' }}>
               Project Name (Optional)
@@ -327,7 +344,7 @@ export default function DiscoveryPanel({ prompt, onComplete, onSkip, onBack }) {
               style={{ fontFamily: 'Space Mono, monospace' }}
             />
             <p className="text-white/20 text-xs mt-1.5" style={{ fontFamily: 'Space Mono, monospace' }}>
-              ðŸ’¡ Use lowercase with dashes (e.g., my-awesome-app)
+              💡 Use lowercase with dashes (e.g., my-awesome-app)
             </p>
           </div>
         </div>
@@ -348,7 +365,7 @@ export default function DiscoveryPanel({ prompt, onComplete, onSkip, onBack }) {
           className="text-white/30 text-xs hover:text-white/60 transition-colors px-3 py-1.5 rounded-lg border border-white/[0.06] hover:border-white/[0.15]"
           style={{ fontFamily: 'Space Mono, monospace' }}
         >
-          â† Edit prompt
+          ← Edit prompt
         </button>
       </div>
       
@@ -376,16 +393,22 @@ export default function DiscoveryPanel({ prompt, onComplete, onSkip, onBack }) {
       {/* Action buttons */}
       <div className="flex items-center justify-between pt-2">
         <button
-          onClick={() => onSkip(projectName.trim())}
+          onClick={() => {
+            if (typeof onSubmitAnswers === 'function') {
+              onSubmitAnswers({});
+              return;
+            }
+            onSkip(projectName.trim());
+          }}
           className="text-white/30 text-xs hover:text-white/50 transition-colors"
           style={{ fontFamily: 'Space Mono, monospace' }}
         >
-          Skip discovery â†’ build with original prompt
+          Skip discovery → build with original prompt
         </button>
         
         <button
           onClick={handleBuild}
-          disabled={answeredCount === 0}
+          disabled={typeof onSubmitAnswers !== 'function' && answeredCount === 0}
           className="inline-flex items-center gap-2 px-8 py-3 rounded-xl text-[0.8rem] font-bold tracking-[1px] border-none cursor-pointer transition-all hover:-translate-y-0.5 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:translate-y-0"
           style={{
             fontFamily: 'Orbitron, sans-serif',
@@ -394,7 +417,7 @@ export default function DiscoveryPanel({ prompt, onComplete, onSkip, onBack }) {
             boxShadow: answeredCount > 0 ? '0 0 30px rgba(0,255,136,0.3)' : 'none'
           }}
         >
-          âš¡ BUILD IT ({answeredCount}/{questions.length} answered)
+          ⚡ BUILD IT ({answeredCount}/{questions.length} answered)
         </button>
       </div>
     </div>

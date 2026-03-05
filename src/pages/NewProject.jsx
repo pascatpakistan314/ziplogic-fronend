@@ -14,13 +14,18 @@ import {
 // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // VERSION IDENTIFIER - Check this in browser console!
 // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-const ZIPLOGIC_VERSION = 'v3.1.0-NO-AUTO-START';
+const ZIPLOGIC_VERSION = 'v3.2.0-WS-FIX';
 console.log('%c[ZipLogic] ðŸš€ NewProject.jsx ' + ZIPLOGIC_VERSION, 'background: #00ff88; color: black; font-size: 14px; padding: 4px 8px; border-radius: 4px;');
 console.log('%c[ZipLogic] Preview: Manual Start Only (No Auto-Start)', 'color: #00ddff;');
 
-// Config
-const BACKEND_PORT = import.meta.env.VITE_BACKEND_PORT || '8000';
-const BACKEND_BASE = `${window.location.protocol}//${window.location.hostname}:${BACKEND_PORT}`;
+// Config - WebSocket connects to API host (api.ziplogicai.com), not frontend host
+const API_HOST = (() => {
+  try {
+    const apiUrl = import.meta.env.VITE_API_URL;
+    if (apiUrl) return new URL(apiUrl).host;
+  } catch { }
+  return window.location.hostname;
+})();
 
 /* ============================================
    PARTICLE FIELD - same as landing page
@@ -287,7 +292,7 @@ const LivePreview = ({ projectId, status, files: contents = {}, techStack = {}, 
     try {
       addLog('info', 'ðŸ“¡ Calling backend preview API...');
 
-      const response = await api.post('/agents_v3/preview/start/', {
+      const response = await api.post('/agents_v4/preview/start/', {
         project_id: projectId
       });
 
@@ -327,7 +332,7 @@ const LivePreview = ({ projectId, status, files: contents = {}, techStack = {}, 
     addLog('info', 'ðŸ›‘ Stopping preview...');
 
     try {
-      await api.post('/agents_v3/preview/stop/', {
+      await api.post('/agents_v4/preview/stop/', {
         project_id: projectId
       });
       addLog('success', 'âœ… Preview stopped');
@@ -340,8 +345,15 @@ const LivePreview = ({ projectId, status, files: contents = {}, techStack = {}, 
       pollIntervalRef.current = null;
     }
 
+    // Full reset — allows fresh restart on next click
     setPreviewStatus('idle');
     setPreviewUrl(null);
+    setError(null);
+    setIframeLoaded(false);
+    setRunMode(null);
+    setIsFixing(false);
+    setFixMessage('');
+    setConsoleLogs([]);
     isStartingRef.current = false;
   }, [projectId]);
 
@@ -353,7 +365,7 @@ const LivePreview = ({ projectId, status, files: contents = {}, techStack = {}, 
 
     pollIntervalRef.current = setInterval(async () => {
       try {
-        const response = await api.get(`/agents_v3/preview/logs/?project_id=${projectId}&last=20`);
+        const response = await api.get(`/agents_v4/preview/logs/?project_id=${projectId}&last=20`);
         if (response.data.success && response.data.logs) {
           response.data.logs.forEach(log => {
             if (log.text && log.text.includes('AI Fix')) {
@@ -628,6 +640,8 @@ const NewProject = () => {
   const [mood, setMood] = useState('neutral');
   const [isStreaming, setIsStreaming] = useState(false);
   const [discoveryMode, setDiscoveryMode] = useState(false);
+  const [wsDiscoveryQuestions, setWsDiscoveryQuestions] = useState(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [techStack, setTechStack] = useState({});
   const [agentStatus, setAgentStatus] = useState(null);
   const [agentMessage, setAgentMessage] = useState('');
@@ -639,7 +653,7 @@ const NewProject = () => {
   // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
   const connectWebSocket = useCallback((pid) => {
     const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsUrl = `${wsProtocol}//${window.location.hostname}:${BACKEND_PORT}/ws/v3/project/${pid}/`;
+    const wsUrl = `${wsProtocol}//${API_HOST}/ws/v3/project/${pid}/`;
 
     console.log('ðŸ”Œ WebSocket connecting:', wsUrl);
 
@@ -677,6 +691,12 @@ const NewProject = () => {
               setStep(data.step || data.message || msg.step || msg.message || '');
               if ((data.progress || msg.progress) > 10) setStatus('generating');
               setMood('working');
+              // Transition from analyzing to generation screen
+              if (isAnalyzing) {
+                setIsAnalyzing(false);
+                setIsGen(true);
+              }
+              if (!isGen && !discoveryMode) setIsGen(true);
               break;
 
             case 'files_batch':
@@ -727,6 +747,13 @@ const NewProject = () => {
               if (data.tech_stack || msg.tech_stack) setTechStack(data.tech_stack || msg.tech_stack);
               break;
 
+            case 'discovery_questions':
+              // Planner asked discovery questions during generation
+              setWsDiscoveryQuestions(data.questions || msg.questions || []);
+              setIsAnalyzing(false);
+              setDiscoveryMode(true);
+              break;
+
             case 'agent_status':
               // Universal Agent status updates
               const aStatus = data.status || msg.status;
@@ -768,12 +795,19 @@ const NewProject = () => {
   const submit = async (e) => {
     e.preventDefault();
     if (!prompt.trim()) return;
-    setDiscoveryMode(true);
+
+    // Show analyzing state while planner works
+    setWsDiscoveryQuestions(null);
+    setIsAnalyzing(true);
+    setError(null);
+    setMood('working');
+    await startBuild(prompt);
   };
 
   const startBuild = async (finalPrompt, projectName = '') => {
     setDiscoveryMode(false);
-    setIsGen(true);
+    setWsDiscoveryQuestions(null);
+    // Don't set isGen yet — wait for WS progress event
     setStatus('planning');
     setProgress(5);
     setStep('Analyzing requirements...');
@@ -784,8 +818,10 @@ const NewProject = () => {
 
     try {
       const payload = {
-        prompt,
-        enriched_prompt: finalPrompt
+        // send final prompt as prompt for both v3/v4
+        prompt: finalPrompt,
+        original_prompt: prompt,
+        enriched_prompt: finalPrompt,
       };
 
       // Add project_name if provided
@@ -793,18 +829,28 @@ const NewProject = () => {
         payload.project_name = projectName.trim();
       }
 
-      const r = await api.post('/agents_v3/generate/', payload);
+      // Prefer v4 generate endpoint, fallback to v3.
+      let r;
+      try {
+        r = await api.post('/agents_v4/generate/', payload);
+      } catch (e) {
+        console.warn('agents_v4 generate failed, falling back to v3', e);
+        r = await api.post('/agents_v3/generate/', payload);
+      }
+
       if (r.data.success) {
-        const pid = r.data.project.id;
+        const pid = r.data.project?.id || r.data.project_id;
+        if (!pid) throw new Error('No project id returned');
         setProjectId(pid);
         connectWebSocket(pid);
       } else {
-        throw new Error(r.data.message);
+        throw new Error(r.data.message || r.data.error || 'Build failed');
       }
     } catch (e) {
       setError(e.response?.data?.message || e.message);
       setStatus('error');
       setIsGen(false);
+      setIsAnalyzing(false);
       setMood('neutral');
     }
   };
@@ -897,7 +943,20 @@ const NewProject = () => {
           <AlienMascot size={80} mood={mood} />
         </div>
 
-        {!isGen && !discoveryMode ? (
+        {isAnalyzing ? (
+          <div className="p-8 rounded-[20px] border border-white/[0.08] backdrop-blur-sm text-center mb-8" style={{ background: 'rgba(255,255,255,0.02)' }}>
+            <div className="w-14 h-14 border-2 border-[#00ff88] border-t-transparent rounded-full animate-spin mx-auto mb-5" />
+            <h2 className="text-white text-xl font-semibold mb-2" style={{ fontFamily: 'Orbitron, sans-serif' }}>
+              <span className="gradient-text">Analyzing Your Project</span>
+            </h2>
+            <p className="text-white/40 text-sm" style={{ fontFamily: 'Space Mono, monospace' }}>
+              Our AI is understanding your requirements...
+            </p>
+            <p className="text-white/20 text-xs mt-3" style={{ fontFamily: 'Space Mono, monospace' }}>
+              This may take a few seconds
+            </p>
+          </div>
+        ) : !isGen && !discoveryMode ? (
           <form onSubmit={submit} className="mb-8">
             <div className="p-6 rounded-[20px] border border-white/[0.08] backdrop-blur-sm" style={{ background: 'rgba(255,255,255,0.03)' }}>
               <label className="block text-[#00ff88] text-[0.65rem] font-[Space_Mono,monospace] tracking-[2px] mb-3">DESCRIBE_YOUR_PROJECT</label>
@@ -920,6 +979,16 @@ const NewProject = () => {
         ) : discoveryMode ? (
           <DiscoveryPanel
             prompt={prompt}
+            questionsOverride={wsDiscoveryQuestions}
+            onSubmitAnswers={(answers) => {
+              try {
+                wsRef.current?.send(JSON.stringify({ type: 'discovery_answers', answers }));
+              } catch (e) {
+                console.warn('Failed to send discovery answers', e);
+              }
+              setDiscoveryMode(false);
+            }}
+            // Legacy HTTP discovery fallback (if ws questions not provided)
             onComplete={(enriched, projectName) => startBuild(enriched, projectName)}
             onSkip={(projectName) => startBuild(prompt, projectName)}
             onBack={() => setDiscoveryMode(false)}
