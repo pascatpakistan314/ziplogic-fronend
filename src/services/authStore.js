@@ -2,8 +2,8 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { authAPI } from '../services/api'
 
-// Token expiry time in milliseconds (5 hours)
-const TOKEN_EXPIRY_MS = 5 * 60 * 60 * 1000;
+// Token expiry time in milliseconds (23 hours - slightly less than backend's 1 day)
+const TOKEN_EXPIRY_MS = 23 * 60 * 60 * 1000;
 
 export const useAuthStore = create(
   persist(

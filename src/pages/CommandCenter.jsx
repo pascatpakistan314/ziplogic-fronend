@@ -142,7 +142,7 @@ const Collapse = ({title, children, defaultOpen=false, badge}) => {
 };
 
 const EmojiRating = ({value, onChange}) => (
-  <div className="flex gap-3 flex-wrap">{[{e:'ðŸ˜¤',l:'HOSTILE',v:1},{e:'ðŸ˜•',l:'ROUGH',v:2},{e:'ðŸ˜',l:'NEUTRAL',v:3},{e:'ðŸ˜Š',l:'SOLID',v:4},{e:'ðŸ¤©',l:'LETHAL',v:5}].map(o=>(
+  <div className="flex gap-3 flex-wrap">{[{e:'😤',l:'HOSTILE',v:1},{e:'😕',l:'ROUGH',v:2},{e:'😐',l:'NEUTRAL',v:3},{e:'😐Š',l:'SOLID',v:4},{e:'🤩',l:'LETHAL',v:5}].map(o=>(
     <button key={o.v} onClick={()=>onChange(o.v)} className={cn("flex flex-col items-center gap-1.5 px-4 py-3 rounded-lg border transition-all duration-300",value===o.v?"border-emerald-400 bg-emerald-500/10 scale-110":"border-cyan-500/10 hover:border-cyan-500/30 bg-cyan-500/[0.02] hover:scale-105")}>
       <span className="text-3xl">{o.e}</span><span className="text-[10px] text-cyan-400/50 font-mono tracking-wider">{o.l}</span>
     </button>
@@ -163,28 +163,28 @@ const NPSScale = ({value, onChange}) => (
 â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 const NAV = [
   { group:'RED_CLEARANCE', color:'#ff4444', items:[
-    {id:'privacy',icon:'ðŸ›¡ï¸',label:'Privacy Shield (GDPR)'},
-    {id:'terms',icon:'ðŸ“œ',label:'Terms of Service'},
-    {id:'bug-report',icon:'ðŸ›',label:'Incident Report'},
-    {id:'feedback',icon:'ðŸ’¬',label:'Beta Intel'},
+    {id:'privacy',icon:'🛡️',label:'Privacy Shield (GDPR)'},
+    {id:'terms',icon:'📖',label:'Terms of Service'},
+    {id:'bug-report',icon:'🐛',label:'Incident Report'},
+    {id:'feedback',icon:'💬',label:'Beta Intel'},
   ]},
   { group:'EU_COMPLIANCE', color:'#0088ff', items:[
-    {id:'gdpr',icon:'ðŸ‡ªðŸ‡º',label:'GDPR Compliance'},
-    {id:'ai-act',icon:'ðŸ¤–',label:'EU AI Act'},
-    {id:'dsa',icon:'ðŸ“¡',label:'Digital Services Act'},
-    {id:'data-act',icon:'ðŸ’¾',label:'EU Data Act'},
-    {id:'dpa',icon:'ðŸ“‹',label:'Data Processing Agmt'},
+    {id:'gdpr',icon:'🇪🇺',label:'GDPR Compliance'},
+    {id:'ai-act',icon:'🤖',label:'EU AI Act'},
+    {id:'dsa',icon:'📡',label:'Digital Services Act'},
+    {id:'data-act',icon:'💾',label:'EU Data Act'},
+    {id:'dpa',icon:'📋',label:'Data Processing Agmt'},
   ]},
   { group:'YELLOW_CLEARANCE', color:'#ffaa00', items:[
     {id:'acceptable-use',icon:'âš–ï¸',label:'Rules of Engagement'},
-    {id:'cookies',icon:'ðŸª',label:'Cookie Protocol'},
-    {id:'contact',icon:'ðŸ“¡',label:'Comms Channel'},
-    {id:'about',icon:'ðŸ›¸',label:'Ship Manifest'},
-    {id:'docs',icon:'ðŸ“–',label:'Tech Manual'},
+    {id:'cookies',icon:'🍪',label:'Cookie Protocol'},
+    {id:'contact',icon:'📡',label:'Comms Channel'},
+    {id:'about',icon:'🐛¸',label:'Ship Manifest'},
+    {id:'docs',icon:'📖',label:'Tech Manual'},
   ]},
   { group:'GREEN_CLEARANCE', color:'#00ff88', items:[
-    {id:'changelog',icon:'ðŸ“‹',label:'Ship Log'},
-    {id:'status',icon:'ðŸ“Š',label:'Diagnostics'},
+    {id:'changelog',icon:'📋',label:'Ship Log'},
+    {id:'status',icon:'📋',label:'Diagnostics'},
   ]},
 ];
 
@@ -206,7 +206,7 @@ export default function CommandCenter() {
   const [cDone, setCDone] = useState(false);
 
   const [speech, setSpeech] = useState('Welcome aboard, human!');
-  const speeches = {'privacy':'Your data is safe with us! ðŸ›¡ï¸','terms':'Read the fine print, pilot!','bug-report':'Report hostile anomalies! ðŸ”§','feedback':'Intel requested, soldier!','gdpr':'GDPR fortress activated! ðŸ‡ªðŸ‡º','ai-act':'AI Act compliance online! ðŸ¤–','dsa':'Digital Services Act loaded!','data-act':'Data Act protocols engaged! ðŸ’¾','dpa':'Processing agreement ready! ðŸ“‹','acceptable-use':'Rules of engagement active! âš–ï¸','cookies':'Digital rations scanned! ðŸª','contact':'Open comms channel! ðŸ“¡','about':'Ship manifest loaded! ðŸ›¸','docs':'Study the manual, recruit! ðŸ“–','changelog':'Mission log updated! âœ¨','status':'All systems nominal! ðŸš€'};
+  const speeches = {'privacy':'Your data is safe with us! 🛡️','terms':'Read the fine print, pilot!','bug-report':'Report hostile anomalies! 🔧','feedback':'Intel requested, soldier!','gdpr':'GDPR fortress activated! 🇪🇺','ai-act':'AI Act compliance online! 🤖','dsa':'Digital Services Act loaded!','data-act':'Data Act protocols engaged! 💾','dpa':'Processing agreement ready! 📋','acceptable-use':'Rules of engagement active! âš–ï¸','cookies':'Digital rations scanned! 🍪','contact':'Open comms channel! 📡','about':'Ship manifest loaded! 🐛¸','docs':'Study the manual, recruit! 📖','changelog':'Mission log updated! ✨','status':'All systems nominal! ðŸš€'};
 
   useEffect(() => {
     const t = setInterval(() => setTime(new Date().toLocaleTimeString('en-US',{hour12:false})), 1000);
@@ -470,11 +470,11 @@ export default function CommandCenter() {
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div><label className="block text-red-400 text-[10px] font-mono tracking-widest mb-2">THREAT_TYPE *</label>
                       <select value={bugForm.category} onChange={e=>setBugForm({...bugForm,category:e.target.value})} className={cn(inp,"appearance-none cursor-pointer")}>
-                        <option value="" className="bg-black">Classify threat...</option><option value="gen" className="bg-black">ðŸ¤– Generation Failed</option><option value="code" className="bg-black">ðŸ’» Code Malfunction</option><option value="preview" className="bg-black">ðŸ‘ï¸ Visual Anomaly</option><option value="dl" className="bg-black">ðŸ“¥ Download Failure</option><option value="acct" className="bg-black">ðŸ‘¤ Account Issue</option><option value="perf" className="bg-black">âš¡ Performance</option><option value="ws" className="bg-black">ðŸ”Œ Stream Disruption</option><option value="privacy" className="bg-black">ðŸ›¡ï¸ Privacy/Data Concern</option><option value="other" className="bg-black">ðŸ”§ Unclassified</option>
+                        <option value="" className="bg-black">Classify threat...</option><option value="gen" className="bg-black">🤖 Generation Failed</option><option value="code" className="bg-black">💻 Code Malfunction</option><option value="preview" className="bg-black">ðŸ‘ï¸ Visual Anomaly</option><option value="dl" className="bg-black">📥 Download Failure</option><option value="acct" className="bg-black">👤 Account Issue</option><option value="perf" className="bg-black">âš¡ Performance</option><option value="ws" className="bg-black">ðŸ”Œ Stream Disruption</option><option value="privacy" className="bg-black">🛡️ Privacy/Data Concern</option><option value="other" className="bg-black">🔧 Unclassified</option>
                       </select></div>
                     <div><label className="block text-orange-400 text-[10px] font-mono tracking-widest mb-2">THREAT_LEVEL *</label>
                       <select value={bugForm.severity} onChange={e=>setBugForm({...bugForm,severity:e.target.value})} className={cn(inp,"appearance-none cursor-pointer")}>
-                        <option value="" className="bg-black">Assess severity...</option><option value="blocker" className="bg-black">ðŸ”´ CRITICAL</option><option value="major" className="bg-black">ðŸŸ  MAJOR</option><option value="minor" className="bg-black">ðŸŸ¡ MINOR</option><option value="cosmetic" className="bg-black">ðŸŸ¢ LOW</option>
+                        <option value="" className="bg-black">Assess severity...</option><option value="blocker" className="bg-black">🔴 CRITICAL</option><option value="major" className="bg-black">🟠 MAJOR</option><option value="minor" className="bg-black">🟡 MINOR</option><option value="cosmetic" className="bg-black">🟢 LOW</option>
                       </select></div>
                   </div>
                   <div><label className="block text-cyan-400 text-[10px] font-mono tracking-widest mb-2">AFFECTED_MISSION</label><input placeholder="Project name or ID" value={bugForm.project} onChange={e=>setBugForm({...bugForm,project:e.target.value})} className={inp}/></div>
@@ -507,11 +507,11 @@ export default function CommandCenter() {
                   <div><label className="block text-purple-400 text-[10px] font-mono tracking-widest mb-2">WEAPON_REQUEST</label><textarea rows={2} placeholder="One feature to add to the arsenal..." value={fbForm.feature} onChange={e=>setFbForm({...fbForm,feature:e.target.value})} className={cn(inp,"resize-none")}/></div>
                   <div>
                     <label className="block text-pink-400 text-[10px] font-mono tracking-widest mb-3">HOSTILE_ENCOUNTERS?</label>
-                    <div className="flex gap-3">{[{v:true,l:'ðŸ› Affirmative'},{v:false,l:'âœ¨ Negative'}].map(o=>(<button key={String(o.v)} onClick={()=>setFbForm({...fbForm,hadBugs:o.v})} className={cn("px-5 py-3 rounded-lg border text-xs font-mono tracking-wider transition-all",fbForm.hadBugs===o.v?"border-emerald-400 bg-emerald-500/10 text-emerald-400":"border-cyan-500/10 text-cyan-400/40 hover:border-cyan-500/30")}>{o.l}</button>))}</div>
+                    <div className="flex gap-3">{[{v:true,l:'🐛 Affirmative'},{v:false,l:'✨ Negative'}].map(o=>(<button key={String(o.v)} onClick={()=>setFbForm({...fbForm,hadBugs:o.v})} className={cn("px-5 py-3 rounded-lg border text-xs font-mono tracking-wider transition-all",fbForm.hadBugs===o.v?"border-emerald-400 bg-emerald-500/10 text-emerald-400":"border-cyan-500/10 text-cyan-400/40 hover:border-cyan-500/30")}>{o.l}</button>))}</div>
                     {fbForm.hadBugs===true&&<textarea rows={2} placeholder="Debrief..." value={fbForm.bugDetail} onChange={e=>setFbForm({...fbForm,bugDetail:e.target.value})} className={cn(inp,"resize-none mt-3")}/>}
                   </div>
                   <div><label className="block text-cyan-400 text-[10px] font-mono tracking-widest mb-4">DEPLOYMENT_RECOMMENDATION</label><NPSScale value={fbForm.nps} onChange={v=>setFbForm({...fbForm,nps:v})}/></div>
-                  <button onClick={()=>{setFbDone(true);setKills(k=>k+1);}} className={cn(btnP,"w-full sm:w-auto")}>ðŸ“¡ TRANSMIT INTEL</button>
+                  <button onClick={()=>{setFbDone(true);setKills(k=>k+1);}} className={cn(btnP,"w-full sm:w-auto")}>📡 TRANSMIT INTEL</button>
                 </HUDFrame>
               ) : (
                 <HUDFrame color="#00ff88" className="p-10 bg-emerald-500/[0.03] text-center">
@@ -525,7 +525,7 @@ export default function CommandCenter() {
 
             {/* â•â•â• GDPR COMPLIANCE â•â•â• */}
             <section id="gdpr" className="scroll-mt-6">
-              <HUDFrame className="inline-flex items-center gap-3 px-6 py-2 mb-6" color="#0088ff"><span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse"/><span className="text-blue-400 text-[10px] font-mono tracking-[0.3em]">ðŸ‡ªðŸ‡º GDPR COMPLIANCE MATRIX â€” REGULATION (EU) 2016/679</span></HUDFrame>
+              <HUDFrame className="inline-flex items-center gap-3 px-6 py-2 mb-6" color="#0088ff"><span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse"/><span className="text-blue-400 text-[10px] font-mono tracking-[0.3em]">🇪🇺 GDPR COMPLIANCE MATRIX â€” REGULATION (EU) 2016/679</span></HUDFrame>
               <h2 className="font-display text-3xl sm:text-5xl font-black mb-2">GDPR <span className="text-gradient">COMPLIANCE</span></h2>
               <p className="text-cyan-400/30 text-[10px] font-mono mb-8 tracking-[0.3em]">CUMULATIVE FINES ACROSS EU SINCE 2018: â‚¬5.88 BILLION // TAKE THIS SERIOUSLY</p>
 
@@ -571,28 +571,28 @@ export default function CommandCenter() {
               </div>
             </section>
 
-            {/* â•â•â• EU AI ACT â•â•â• */}
+            {/* EU AI ACT */}
             <section id="ai-act" className="scroll-mt-6">
-              <HUDFrame className="inline-flex items-center gap-3 px-6 py-2 mb-6" color="#0088ff"><span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse"/><span className="text-blue-400 text-[10px] font-mono tracking-[0.3em]">ðŸ¤– EU AI ACT â€” REGULATION (EU) 2024/1689</span></HUDFrame>
+              <HUDFrame className="inline-flex items-center gap-3 px-6 py-2 mb-6" color="#0088ff"><span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse"/><span className="text-blue-400 text-[10px] font-mono tracking-[0.3em]">🤖 EU AI ACT — REGULATION (EU) 2024/1689</span></HUDFrame>
               <h2 className="font-display text-3xl sm:text-5xl font-black mb-2">EU AI <span className="text-gradient">ACT</span></h2>
-              <p className="text-cyan-400/30 text-[10px] font-mono mb-8 tracking-[0.3em]">ENTERED INTO FORCE: AUG 1, 2024 // FULL APPLICATION: AUG 2, 2026 // PENALTIES: UP TO â‚¬35M or 7% GLOBAL REVENUE</p>
+              <p className="text-cyan-400/30 text-[10px] font-mono mb-8 tracking-[0.3em]">ENTERED INTO FORCE: AUG 1, 2024 // FULL APPLICATION: AUG 2, 2026 // PENALTIES: UP TO €35M or 7% GLOBAL REVENUE</p>
 
               <TerminalBlock tag="ai_act_compliance.config">
                 <div className="space-y-4 text-sm">
                   <div className="flex items-center gap-3 p-3 rounded-lg bg-emerald-500/[0.05] border border-emerald-500/20">
-                    <span className="text-xl">âœ…</span>
-                    <div><span className="text-emerald-400 font-semibold">Feb 2, 2025 â€” COMPLETED:</span><span className="text-cyan-400/50 ml-2">Prohibited practices ceased. AI literacy obligations addressed.</span></div>
+                    <span className="text-xl">✅</span>
+                    <div><span className="text-emerald-400 font-semibold">Feb 2, 2025 — COMPLETED:</span><span className="text-cyan-400/50 ml-2">Prohibited practices ceased. AI literacy obligations addressed.</span></div>
                   </div>
                   <div className="flex items-center gap-3 p-3 rounded-lg bg-emerald-500/[0.05] border border-emerald-500/20">
-                    <span className="text-xl">âœ…</span>
-                    <div><span className="text-emerald-400 font-semibold">Aug 2, 2025 â€” COMPLETED:</span><span className="text-cyan-400/50 ml-2">GPAI governance rules and obligations for general-purpose AI models.</span></div>
+                    <span className="text-xl">✅</span>
+                    <div><span className="text-emerald-400 font-semibold">Aug 2, 2025 — COMPLETED:</span><span className="text-cyan-400/50 ml-2">GPAI governance rules and obligations for general-purpose AI models.</span></div>
                   </div>
                   <div className="flex items-center gap-3 p-3 rounded-lg bg-yellow-500/[0.05] border border-yellow-500/20">
-                    <span className="text-xl">â³</span>
-                    <div><span className="text-yellow-400 font-semibold">Aug 2, 2026 â€” IN PROGRESS:</span><span className="text-cyan-400/50 ml-2">Full application. Transparency obligations (Art. 50). High-risk rules for standalone systems.</span></div>
+                    <span className="text-xl">⏳</span>
+                    <div><span className="text-yellow-400 font-semibold">Aug 2, 2026 — IN PROGRESS:</span><span className="text-cyan-400/50 ml-2">Full application. Transparency obligations (Art. 50). High-risk rules for standalone systems.</span></div>
                   </div>
                   <div className="flex items-center gap-3 p-3 rounded-lg bg-cyan-500/[0.03] border border-cyan-500/10">
-                    <span className="text-xl">ðŸ“‹</span>
+                    <span className="text-xl">📋</span>
                     <div><span className="text-cyan-400 font-semibold">Aug 2, 2027:</span><span className="text-cyan-400/50 ml-2">High-risk AI embedded in regulated products. GPAI models placed on market before Aug 2025 must fully comply.</span></div>
                   </div>
                 </div>
@@ -600,19 +600,19 @@ export default function CommandCenter() {
 
               <div className="space-y-2 mt-6">
                 <Collapse title="OUR AI RISK CLASSIFICATION" defaultOpen badge="LIMITED RISK">
-                  <p>ZipLogic AI's code generation platform is classified as <strong className="text-yellow-400">limited risk</strong> under the AI Act's tiered framework. Our AI generates software code based on user prompts â€” it does not make decisions about individuals' rights, access to services, employment, education, or other high-risk categories listed in Annex III.</p>
+                  <p>ZipLogic AI's code generation platform is classified as <strong className="text-yellow-400">limited risk</strong> under the AI Act's tiered framework. Our AI generates software code based on user prompts — it does not make decisions about individuals' rights, access to services, employment, education, or other high-risk categories listed in Annex III.</p>
                   <p><strong className="text-emerald-400">We are NOT high-risk because:</strong> We do not operate in biometric identification, critical infrastructure, education/vocational training admission, employment/worker management, essential services access, law enforcement, migration/asylum, or justice/democratic processes.</p>
                   <p><strong className="text-cyan-400">Transparency obligation (Art. 50):</strong> We clearly disclose that users are interacting with AI-generated outputs. All generated code is labeled as AI-produced.</p>
                 </Collapse>
-                <Collapse title="PROHIBITED PRACTICES â€” CONFIRMED COMPLIANCE" badge="ART. 5">
+                <Collapse title="PROHIBITED PRACTICES — CONFIRMED COMPLIANCE" badge="ART. 5">
                   <p>We confirm ZipLogic AI does NOT engage in:</p>
-                  <p>âŒ Subliminal manipulation or deceptive techniques harmful to users</p>
-                  <p>âŒ Exploitation of age, disability, or social/economic vulnerabilities</p>
-                  <p>âŒ Social scoring systems</p>
-                  <p>âŒ Real-time remote biometric identification in public spaces</p>
-                  <p>âŒ Emotion recognition in workplace/education settings</p>
-                  <p>âŒ Untargeted facial recognition scraping</p>
-                  <p>âŒ Predictive policing based solely on profiling</p>
+                  <p>✗ Subliminal manipulation or deceptive techniques harmful to users</p>
+                  <p>✗ Exploitation of age, disability, or social/economic vulnerabilities</p>
+                  <p>✗ Social scoring systems</p>
+                  <p>✗ Real-time remote biometric identification in public spaces</p>
+                  <p>✗ Emotion recognition in workplace/education settings</p>
+                  <p>✗ Untargeted facial recognition scraping</p>
+                  <p>✗ Predictive policing based solely on profiling</p>
                 </Collapse>
                 <Collapse title="GENERAL-PURPOSE AI (GPAI) CONSIDERATIONS" badge="ART. 51-56">
                   <p>ZipLogic AI integrates third-party GPAI models (LLMs) as deployers, not providers. Our obligations include: verifying our GPAI providers comply with Art. 53 requirements (technical documentation, training data summaries, EU copyright compliance), maintaining transparency about AI use, and monitoring outputs for quality.</p>
@@ -629,7 +629,7 @@ export default function CommandCenter() {
 
             {/* â•â•â• DIGITAL SERVICES ACT â•â•â• */}
             <section id="dsa" className="scroll-mt-6">
-              <HUDFrame className="inline-flex items-center gap-3 px-6 py-2 mb-6" color="#0088ff"><span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse"/><span className="text-blue-400 text-[10px] font-mono tracking-[0.3em]">ðŸ“¡ DIGITAL SERVICES ACT â€” REGULATION (EU) 2022/2065</span></HUDFrame>
+              <HUDFrame className="inline-flex items-center gap-3 px-6 py-2 mb-6" color="#0088ff"><span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse"/><span className="text-blue-400 text-[10px] font-mono tracking-[0.3em]">📡 DIGITAL SERVICES ACT â€” REGULATION (EU) 2022/2065</span></HUDFrame>
               <h2 className="font-display text-3xl sm:text-5xl font-black mb-2">DIGITAL SERVICES <span className="text-gradient">ACT</span></h2>
               <p className="text-cyan-400/30 text-[10px] font-mono mb-8 tracking-[0.3em]">IN FORCE SINCE FEB 17, 2024 // FINES UP TO 6% GLOBAL ANNUAL TURNOVER</p>
 
@@ -656,7 +656,7 @@ export default function CommandCenter() {
 
             {/* â•â•â• EU DATA ACT â•â•â• */}
             <section id="data-act" className="scroll-mt-6">
-              <HUDFrame className="inline-flex items-center gap-3 px-6 py-2 mb-6" color="#0088ff"><span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse"/><span className="text-blue-400 text-[10px] font-mono tracking-[0.3em]">ðŸ’¾ EU DATA ACT â€” REGULATION (EU) 2023/2854</span></HUDFrame>
+              <HUDFrame className="inline-flex items-center gap-3 px-6 py-2 mb-6" color="#0088ff"><span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse"/><span className="text-blue-400 text-[10px] font-mono tracking-[0.3em]">💾 EU DATA ACT â€” REGULATION (EU) 2023/2854</span></HUDFrame>
               <h2 className="font-display text-3xl sm:text-5xl font-black mb-2">EU DATA <span className="text-gradient">ACT</span></h2>
               <p className="text-cyan-400/30 text-[10px] font-mono mb-8 tracking-[0.3em]">KEY OBLIGATIONS EFFECTIVE: SEP 12, 2025 // SWITCHING CHARGES BANNED: JAN 2027</p>
 
@@ -680,7 +680,7 @@ export default function CommandCenter() {
 
             {/* â•â•â• DATA PROCESSING AGREEMENT â•â•â• */}
             <section id="dpa" className="scroll-mt-6">
-              <HUDFrame className="inline-flex items-center gap-3 px-6 py-2 mb-6" color="#0088ff"><span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse"/><span className="text-blue-400 text-[10px] font-mono tracking-[0.3em]">ðŸ“‹ DATA PROCESSING AGREEMENT â€” GDPR ART. 28</span></HUDFrame>
+              <HUDFrame className="inline-flex items-center gap-3 px-6 py-2 mb-6" color="#0088ff"><span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse"/><span className="text-blue-400 text-[10px] font-mono tracking-[0.3em]">📋 DATA PROCESSING AGREEMENT â€” GDPR ART. 28</span></HUDFrame>
               <h2 className="font-display text-3xl sm:text-5xl font-black mb-2">DATA PROCESSING <span className="text-gradient">AGREEMENT</span></h2>
               <p className="text-cyan-400/30 text-[10px] font-mono mb-8 tracking-[0.3em]">FOR CUSTOMERS WHERE ZIPLOGIC AI ACTS AS DATA PROCESSOR</p>
 
@@ -716,18 +716,18 @@ export default function CommandCenter() {
               <HUDFrame className="inline-flex items-center gap-3 px-6 py-2 mb-6" color="#ffaa00"><span className="w-2 h-2 rounded-full bg-yellow-400 animate-pulse"/><span className="text-yellow-400 text-[10px] font-mono tracking-[0.3em]">RULES OF ENGAGEMENT â€” MANDATORY BRIEFING</span></HUDFrame>
               <h2 className="font-display text-3xl sm:text-5xl font-black mb-8">RULES OF <span className="text-gradient">ENGAGEMENT</span></h2>
               <div className="space-y-2">
-                <Collapse title="ðŸš« PROHIBITED: WEAPONS-GRADE CODE" defaultOpen><p>No malware, ransomware, viruses, exploits, phishing, keyloggers, spyware, DDoS tools, botnets, or command-and-control infrastructure. Period.</p></Collapse>
-                <Collapse title="ðŸš« PROHIBITED: ENEMY IP"><p>No cloning proprietary software, infringing patents/copyrights/trademarks, or circumventing DRM/technical protection measures (violates both EU Copyright Directive 2019/790 and platform terms).</p></Collapse>
-                <Collapse title="ðŸš« PROHIBITED: MUTINY"><p>No multi-accounting, bots/scrapers, reverse-engineering our pipeline, disrupting operations, or attempting to extract training data from our AI models.</p></Collapse>
-                <Collapse title="ðŸš« PROHIBITED: ARMOR PIERCING"><p>No removing digital fingerprints, stripping license keys, disabling honeypots, or redistributing/reselling generated code.</p></Collapse>
-                <Collapse title="ðŸš« PROHIBITED: ILLEGAL CONTENT"><p>No generating content that is illegal under EU or member state law, including but not limited to: CSAM, terrorist content, illegal hate speech (as defined under EU Framework Decision 2008/913/JHA), or content violating the Digital Services Act.</p></Collapse>
+                <Collapse title="🚫 PROHIBITED: WEAPONS-GRADE CODE" defaultOpen><p>No malware, ransomware, viruses, exploits, phishing, keyloggers, spyware, DDoS tools, botnets, or command-and-control infrastructure. Period.</p></Collapse>
+                <Collapse title="🚫 PROHIBITED: ENEMY IP"><p>No cloning proprietary software, infringing patents/copyrights/trademarks, or circumventing DRM/technical protection measures (violates both EU Copyright Directive 2019/790 and platform terms).</p></Collapse>
+                <Collapse title="🚫 PROHIBITED: MUTINY"><p>No multi-accounting, bots/scrapers, reverse-engineering our pipeline, disrupting operations, or attempting to extract training data from our AI models.</p></Collapse>
+                <Collapse title="🚫 PROHIBITED: ARMOR PIERCING"><p>No removing digital fingerprints, stripping license keys, disabling honeypots, or redistributing/reselling generated code.</p></Collapse>
+                <Collapse title="🚫 PROHIBITED: ILLEGAL CONTENT"><p>No generating content that is illegal under EU or member state law, including but not limited to: CSAM, terrorist content, illegal hate speech (as defined under EU Framework Decision 2008/913/JHA), or content violating the Digital Services Act.</p></Collapse>
                 <Collapse title="âš¡ ENFORCEMENT PROTOCOL"><p><span className="text-yellow-400">1st offense:</span> Warning + 24h suspension. <span className="text-orange-400">2nd:</span> 30-day suspension + license revocation. <span className="text-red-400">3rd/severe:</span> Permanent termination + legal action. Report abuse: <span className="text-emerald-400 font-mono">abuse@ziplogic.ai</span></p></Collapse>
               </div>
             </section>
 
             {/* â•â•â• COOKIES â•â•â• */}
             <section id="cookies" className="scroll-mt-6">
-              <HUDFrame className="inline-flex items-center gap-3 px-6 py-2 mb-6" color="#ffaa00"><span className="text-amber-400 text-[10px] font-mono tracking-[0.3em]">ðŸª COOKIE & TRACKING PROTOCOL â€” ePrivacy Directive + GDPR</span></HUDFrame>
+              <HUDFrame className="inline-flex items-center gap-3 px-6 py-2 mb-6" color="#ffaa00"><span className="text-amber-400 text-[10px] font-mono tracking-[0.3em]">🍪 COOKIE & TRACKING PROTOCOL â€” ePrivacy Directive + GDPR</span></HUDFrame>
               <h2 className="font-display text-3xl sm:text-5xl font-black mb-2">COOKIE <span className="text-gradient">PROTOCOL</span></h2>
               <p className="text-cyan-400/30 text-[10px] font-mono mb-8 tracking-[0.3em]">ePRIVACY DIRECTIVE 2002/58/EC (AS AMENDED) // GDPR CONSENT STANDARDS // UPDATED FEB 2026</p>
 
@@ -770,7 +770,7 @@ export default function CommandCenter() {
 
             {/* â•â•â• CONTACT â•â•â• */}
             <section id="contact" className="scroll-mt-6">
-              <HUDFrame className="inline-flex items-center gap-3 px-6 py-2 mb-6"><span className="text-emerald-400 text-[10px] font-mono tracking-[0.3em]">ðŸ“¡ OPEN COMMS â€” ALL FREQUENCIES</span></HUDFrame>
+              <HUDFrame className="inline-flex items-center gap-3 px-6 py-2 mb-6"><span className="text-emerald-400 text-[10px] font-mono tracking-[0.3em]">📡 OPEN COMMS â€” ALL FREQUENCIES</span></HUDFrame>
               <h2 className="font-display text-3xl sm:text-5xl font-black mb-8">COMMS <span className="text-gradient">CHANNEL</span></h2>
               <div className="grid md:grid-cols-5 gap-6">
                 <div className="md:col-span-3">{!cDone?(
@@ -782,7 +782,7 @@ export default function CommandCenter() {
                     <div><label className="block text-purple-400 text-[10px] font-mono tracking-widest mb-2">SUBJECT</label><input placeholder="Mission briefing..." value={cForm.subject} onChange={e=>setCForm({...cForm,subject:e.target.value})} className={inp}/></div>
                     <div><label className="block text-pink-400 text-[10px] font-mono tracking-widest mb-2">TRANSMISSION</label><textarea rows={4} placeholder="Speak freely, pilot..." value={cForm.message} onChange={e=>setCForm({...cForm,message:e.target.value})} className={cn(inp,"resize-none")}/></div>
                     <p className="text-[9px] font-mono text-cyan-400/20">Contact form data processed under legitimate interest (GDPR Art. 6(1)(f)) to respond to your inquiry. Data deleted after resolution + 90 days.</p>
-                    <button onClick={()=>{setCDone(true);setKills(k=>k+1);}} className={cn(btnP,"w-full sm:w-auto")}>ðŸ“¡ FIRE TRANSMISSION</button>
+                    <button onClick={()=>{setCDone(true);setKills(k=>k+1);}} className={cn(btnP,"w-full sm:w-auto")}>📡 FIRE TRANSMISSION</button>
                   </HUDFrame>
                 ):(
                   <HUDFrame color="#00ff88" className="p-10 bg-emerald-500/[0.03] text-center">
@@ -791,7 +791,7 @@ export default function CommandCenter() {
                   </HUDFrame>
                 )}</div>
                 <div className="md:col-span-2 space-y-3">
-                  {[{l:'GENERAL',v:'hello@ziplogic.ai',i:'ðŸ“§'},{l:'SUPPORT',v:'support@ziplogic.ai',i:'ðŸ› ï¸'},{l:'PRIVACY / DPO',v:'privacy@ziplogic.ai',i:'ðŸ›¡ï¸'},{l:'ABUSE / DSA',v:'abuse@ziplogic.ai',i:'âš ï¸'},{l:'LEGAL / DPA',v:'legal@ziplogic.ai',i:'âš–ï¸'},{l:'EU REPRESENTATIVE',v:'eu-rep@ziplogic.ai',i:'ðŸ‡ªðŸ‡º'}].map(c=>(
+                  {[{l:'GENERAL',v:'hello@ziplogic.ai',i:'ðŸ“§'},{l:'SUPPORT',v:'support@ziplogic.ai',i:'🐛 ï¸'},{l:'PRIVACY / DPO',v:'privacy@ziplogic.ai',i:'🛡️'},{l:'ABUSE / DSA',v:'abuse@ziplogic.ai',i:'âš ï¸'},{l:'LEGAL / DPA',v:'legal@ziplogic.ai',i:'âš–ï¸'},{l:'EU REPRESENTATIVE',v:'eu-rep@ziplogic.ai',i:'🇪🇺'}].map(c=>(
                     <div key={c.l} className="card-hover p-4 rounded-lg border border-cyan-500/10 bg-cyan-500/[0.02]">
                       <p className="text-[9px] font-mono text-cyan-400/20 tracking-widest mb-1">{c.i} {c.l}</p><p className="text-emerald-400 text-sm font-mono">{c.v}</p>
                     </div>
@@ -806,7 +806,7 @@ export default function CommandCenter() {
 
             {/* â•â•â• ABOUT â•â•â• */}
             <section id="about" className="scroll-mt-6">
-              <HUDFrame className="inline-flex items-center gap-3 px-6 py-2 mb-6" color="#8844ff"><span className="text-purple-400 text-[10px] font-mono tracking-[0.3em]">ðŸ›¸ SHIP MANIFEST â€” CREW DOSSIER</span></HUDFrame>
+              <HUDFrame className="inline-flex items-center gap-3 px-6 py-2 mb-6" color="#8844ff"><span className="text-purple-400 text-[10px] font-mono tracking-[0.3em]">🐛¸ SHIP MANIFEST â€” CREW DOSSIER</span></HUDFrame>
               <h2 className="font-display text-3xl sm:text-5xl font-black mb-8">SHIP <span className="text-gradient">MANIFEST</span></h2>
               <div className="flex flex-col md:flex-row gap-8">
                 <div className="flex-1 space-y-6">
@@ -838,12 +838,12 @@ export default function CommandCenter() {
 
             {/* â•â•â• DOCS â•â•â• */}
             <section id="docs" className="scroll-mt-6">
-              <HUDFrame className="inline-flex items-center gap-3 px-6 py-2 mb-6" color="#00ddff"><span className="text-cyan-400 text-[10px] font-mono tracking-[0.3em]">ðŸ“– FIELD MANUAL</span></HUDFrame>
+              <HUDFrame className="inline-flex items-center gap-3 px-6 py-2 mb-6" color="#00ddff"><span className="text-cyan-400 text-[10px] font-mono tracking-[0.3em]">📖 FIELD MANUAL</span></HUDFrame>
               <h2 className="font-display text-3xl sm:text-5xl font-black mb-8">TECH <span className="text-gradient">MANUAL</span></h2>
               <div className="grid sm:grid-cols-2 gap-5">
                 {[
                   {t:'LAUNCH SEQUENCE',i:'ðŸš€',s:['Register + verify identity','Dashboard â†’ New Mission','Describe target application','Monitor agent squadron','Inspect, approve, extract']},
-                  {t:'AGENT SQUADRON',i:'ðŸ¤–',s:['Architect â€” plans structure','Developer â€” writes full codebase','Tester â€” validates & tests','Reviewer â€” optimizes & QA']},
+                  {t:'AGENT SQUADRON',i:'🤖',s:['Architect â€” plans structure','Developer â€” writes full codebase','Tester â€” validates & tests','Reviewer â€” optimizes & QA']},
                   {t:'WEAPON SYSTEMS',i:'âš™ï¸',s:['React, Vue, Next.js, HTML/CSS/JS','Django, Express, FastAPI, Node','PostgreSQL, MongoDB, SQLite','Tailwind, Bootstrap, custom CSS']},
                   {t:'TARGETING',i:'ðŸŽ¯',s:['Be precise â€” features, pages, models','Specify tech stack preference','Describe visual identity','Reference existing targets for style']},
                 ].map(d=>(
@@ -857,12 +857,12 @@ export default function CommandCenter() {
 
             {/* â•â•â• CHANGELOG â•â•â• */}
             <section id="changelog" className="scroll-mt-6">
-              <HUDFrame className="inline-flex items-center gap-3 px-6 py-2 mb-6"><span className="text-emerald-400 text-[10px] font-mono tracking-[0.3em]">ðŸ“‹ MISSION LOG</span></HUDFrame>
+              <HUDFrame className="inline-flex items-center gap-3 px-6 py-2 mb-6"><span className="text-emerald-400 text-[10px] font-mono tracking-[0.3em]">📋 MISSION LOG</span></HUDFrame>
               <h2 className="font-display text-3xl sm:text-5xl font-black mb-8">SHIP <span className="text-gradient">LOG</span></h2>
               {[
-                {v:'v0.9.1-beta',d:'2026-02-06',cur:true,ch:[{t:'âœ¨ Deployed',items:['Full EU compliance framework: GDPR, AI Act, DSA, Data Act, ePrivacy','Data Processing Agreement (DPA) template','EU AI Act risk classification & timeline','Digital Services Act hosting obligations','EU Data Act switching rights & portability','Updated cookie consent to strict opt-in with GPC support','CCPA/CPRA + 16 US state privacy law compliance','EU ODR dispute resolution link','Legal representative for EU operations']},{t:'ðŸ”§ Patched',items:['Privacy policy expanded with lawful basis per processing activity','Cookie table now shows consent requirement per cookie','Contact page adds legal/DPA/EU-rep channels','Terms updated with EU Consumer Rights Directive withdrawal period']}]},
-                {v:'v0.9.0-beta',d:'2025-02-05',ch:[{t:'âœ¨ Deployed',items:['Command Center HQ','Incident reporting system','Beta intel collection','Initial legal framework']},{t:'ðŸ”§ Patched',items:['Dead nav links eliminated','Navigation restructured']}]},
-                {v:'v0.8.0-beta',d:'2025-01-15',ch:[{t:'âœ¨ Deployed',items:['Code defense system â€” fingerprints, keys, honeypots','Obfuscation armor','Admin war room']},{t:'ðŸ”§ Patched',items:['Generation speed +40%','Stream stability reinforced']}]},
+                {v:'v0.9.1-beta',d:'2026-02-06',cur:true,ch:[{t:'✨ Deployed',items:['Full EU compliance framework: GDPR, AI Act, DSA, Data Act, ePrivacy','Data Processing Agreement (DPA) template','EU AI Act risk classification & timeline','Digital Services Act hosting obligations','EU Data Act switching rights & portability','Updated cookie consent to strict opt-in with GPC support','CCPA/CPRA + 16 US state privacy law compliance','EU ODR dispute resolution link','Legal representative for EU operations']},{t:'🔧 Patched',items:['Privacy policy expanded with lawful basis per processing activity','Cookie table now shows consent requirement per cookie','Contact page adds legal/DPA/EU-rep channels','Terms updated with EU Consumer Rights Directive withdrawal period']}]},
+                {v:'v0.9.0-beta',d:'2025-02-05',ch:[{t:'✨ Deployed',items:['Command Center HQ','Incident reporting system','Beta intel collection','Initial legal framework']},{t:'🔧 Patched',items:['Dead nav links eliminated','Navigation restructured']}]},
+                {v:'v0.8.0-beta',d:'2025-01-15',ch:[{t:'✨ Deployed',items:['Code defense system â€” fingerprints, keys, honeypots','Obfuscation armor','Admin war room']},{t:'🔧 Patched',items:['Generation speed +40%','Stream stability reinforced']}]},
               ].map(r=>(
                 <div key={r.v} className="mb-10 last:mb-0">
                   <div className="flex items-center gap-3 mb-4">
@@ -879,7 +879,7 @@ export default function CommandCenter() {
 
             {/* â•â•â• STATUS â•â•â• */}
             <section id="status" className="scroll-mt-6">
-              <HUDFrame className="inline-flex items-center gap-3 px-6 py-2 mb-6"><span className="text-emerald-400 text-[10px] font-mono tracking-[0.3em]">ðŸ“Š SYSTEM DIAGNOSTICS</span></HUDFrame>
+              <HUDFrame className="inline-flex items-center gap-3 px-6 py-2 mb-6"><span className="text-emerald-400 text-[10px] font-mono tracking-[0.3em]">📋 SYSTEM DIAGNOSTICS</span></HUDFrame>
               <h2 className="font-display text-3xl sm:text-5xl font-black mb-8">SHIP <span className="text-gradient">DIAGNOSTICS</span></h2>
 
               <HUDFrame color="#00ff88" className="p-5 bg-emerald-500/[0.03] flex items-center gap-4 mb-6">

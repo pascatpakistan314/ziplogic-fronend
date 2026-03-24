@@ -170,7 +170,7 @@ export default function ProjectDetail() {
                 )}
               </h1>
               <p className="text-dark-400 text-sm">
-                {project.total_files} files â€¢ Generated in {project.execution_time?.toFixed(1)}s
+                {project.total_files} files • Generated in {project.execution_time?.toFixed(1)}s
               </p>
             </div>
           </div>
