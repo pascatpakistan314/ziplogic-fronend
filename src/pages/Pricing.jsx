@@ -294,6 +294,15 @@ export default function Pricing() {
           border: plan.border_color,
           btnClass: plan.button_class,
           popular: plan.is_popular,
+          // NEW: Pricing fields
+          max_hosted_projects: plan.max_hosted_projects || 0,
+          hosting_per_extra_project: parseFloat(plan.hosting_per_extra_project) || 0,
+          max_custom_domains: plan.max_custom_domains || 0,
+          custom_domain_price: parseFloat(plan.custom_domain_price) || 0,
+          overage_build_price: parseFloat(plan.overage_build_price) || 0,
+          pay_per_build_price: parseFloat(plan.pay_per_build_price) || 0,
+          free_hosting_days: plan.free_hosting_days || 0,
+          white_label_addon: parseFloat(plan.white_label_addon) || 0,
         }))
         console.log('Processed Plans:', dbPlans) // Debug log
         setPlans(dbPlans)
@@ -309,16 +318,40 @@ export default function Pricing() {
             values: apiPlans.reduce((acc, p) => ({ ...acc, [p.slug]: p.max_ai_builds_per_month }), {})
           },
           { 
+            name: 'AI Fixes / Month', 
+            values: apiPlans.reduce((acc, p) => ({ ...acc, [p.slug]: p.max_ai_fixes_per_month }), {})
+          },
+          { 
+            name: 'Hosted Projects (Free)', 
+            values: apiPlans.reduce((acc, p) => ({ ...acc, [p.slug]: p.max_hosted_projects || '—' }), {})
+          },
+          { 
+            name: 'Extra Hosting Cost', 
+            values: apiPlans.reduce((acc, p) => ({ ...acc, [p.slug]: p.max_hosted_projects > 0 ? `$${p.hosting_per_extra_project}/mo` : '—' }), {})
+          },
+          { 
+            name: 'Custom Domains (Free)', 
+            values: apiPlans.reduce((acc, p) => ({ ...acc, [p.slug]: p.max_custom_domains || (p.slug === 'agency' ? 'Add-on' : '—') }), {})
+          },
+          { 
+            name: 'Extra Domain Cost', 
+            values: apiPlans.reduce((acc, p) => ({ ...acc, [p.slug]: p.max_custom_domains > 0 ? `$${p.custom_domain_price}/mo` : '—' }), {})
+          },
+          { 
+            name: 'Overage Build Price', 
+            values: apiPlans.reduce((acc, p) => ({ ...acc, [p.slug]: p.overage_build_price > 0 ? `$${p.overage_build_price}` : '—' }), {})
+          },
+          { 
+            name: 'Pay-per-Build', 
+            values: apiPlans.reduce((acc, p) => ({ ...acc, [p.slug]: p.pay_per_build_price > 0 ? `$${p.pay_per_build_price}` : '—' }), {})
+          },
+          { 
             name: 'Multi-Agent Orchestration', 
             values: apiPlans.reduce((acc, p) => ({ ...acc, [p.slug]: p.has_multi_agent }), {})
           },
           { 
             name: 'Auto Deployment', 
             values: apiPlans.reduce((acc, p) => ({ ...acc, [p.slug]: p.has_auto_deployment }), {})
-          },
-          { 
-            name: 'Custom Domains', 
-            values: apiPlans.reduce((acc, p) => ({ ...acc, [p.slug]: p.has_custom_domains || (p.slug === 'agency' ? 'Add-on' : false) }), {})
           },
           { 
             name: 'Branded Subdomains', 
@@ -333,8 +366,8 @@ export default function Pricing() {
             values: apiPlans.reduce((acc, p) => ({ ...acc, [p.slug]: p.team_seats > 1 ? `${p.team_seats} seats` : false }), {})
           },
           { 
-            name: 'White-Label Branding', 
-            values: apiPlans.reduce((acc, p) => ({ ...acc, [p.slug]: p.has_white_label || (p.slug === 'agency' ? 'Add-on' : false) }), {})
+            name: 'White-Label Add-on', 
+            values: apiPlans.reduce((acc, p) => ({ ...acc, [p.slug]: p.white_label_addon > 0 ? `$${p.white_label_addon}/mo` : '—' }), {})
           },
           { 
             name: 'Support Level', 
@@ -514,7 +547,7 @@ export default function Pricing() {
                   </div>
 
                   {/* Features */}
-                  <ul className="mb-6 space-y-0">
+                  <ul className="mb-4 space-y-0">
                     {p.features.map((f, i) => (
                       <li key={i} className="flex items-center gap-2 font-mono text-xs text-cyan-200/60 py-1.5 border-b border-slate-800/50 last:border-0">
                         <span className={`text-[10px] ${p.tier === 'agency' ? 'text-fuchsia-400' : p.color}`}>✓</span> {f}
@@ -522,6 +555,49 @@ export default function Pricing() {
                       </li>
                     ))}
                   </ul>
+
+                  {/* NEW: Pricing Details */}
+                  <div className="mb-6 p-3 bg-slate-900/30 border border-slate-800/50 rounded">
+                    <div className="font-mono text-[9px] tracking-[2px] text-cyan-400 mb-2 uppercase">// Pricing Details</div>
+                    <div className="space-y-1.5">
+                      {p.max_hosted_projects > 0 && (
+                        <div className="flex justify-between items-center text-[10px]">
+                          <span className="text-cyan-200/50">Hosted Projects</span>
+                          <span className="text-white font-bold">{p.max_hosted_projects} free</span>
+                        </div>
+                      )}
+                      {p.max_hosted_projects > 0 && p.hosting_per_extra_project > 0 && (
+                        <div className="flex justify-between items-center text-[10px]">
+                          <span className="text-cyan-200/50">Extra Hosting</span>
+                          <span className="text-emerald-400 font-bold">${p.hosting_per_extra_project}/mo</span>
+                        </div>
+                      )}
+                      {p.max_custom_domains > 0 && (
+                        <div className="flex justify-between items-center text-[10px]">
+                          <span className="text-cyan-200/50">Custom Domains</span>
+                          <span className="text-white font-bold">{p.max_custom_domains} free</span>
+                        </div>
+                      )}
+                      {p.overage_build_price > 0 && (
+                        <div className="flex justify-between items-center text-[10px]">
+                          <span className="text-cyan-200/50">Overage Builds</span>
+                          <span className="text-amber-400 font-bold">${p.overage_build_price} each</span>
+                        </div>
+                      )}
+                      {p.pay_per_build_price > 0 && (
+                        <div className="flex justify-between items-center text-[10px]">
+                          <span className="text-cyan-200/50">Pay-per-Build</span>
+                          <span className="text-fuchsia-400 font-bold">${p.pay_per_build_price}</span>
+                        </div>
+                      )}
+                      {p.white_label_addon > 0 && p.tier === 'agency' && (
+                        <div className="flex justify-between items-center text-[10px]">
+                          <span className="text-cyan-200/50">White-Label Add-on</span>
+                          <span className="text-fuchsia-400 font-bold">${p.white_label_addon}/mo</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
 
                   {/* CTA */}
                   <button

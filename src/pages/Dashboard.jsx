@@ -4,6 +4,7 @@ import { useAuthStore } from '../store/authStore'
 import { projectsAPI, dashboardAPI } from '../services/api'
 import api from '../services/api'
 import { FullPageLoading } from '../components/Loading'
+import LivePreview from '../components/LivePreview'
 import toast from 'react-hot-toast'
 import ziplogicLogo from '../images/ziplogic.png'
 import { 
@@ -14,10 +15,10 @@ import {
 } from 'lucide-react'
 
 // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-// VERSION - Cloudflare Preview System (No WebContainer!)
+// VERSION - StackBlitz Preview System
 // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 const ZIPLOGIC_VERSION = 'v3.1.0-WS-FIX'
-console.log('%c[ZipLogic] ðŸš€ Dashboard.jsx ' + ZIPLOGIC_VERSION, 'background: #00ddff; color: black; font-size: 14px; padding: 4px 8px; border-radius: 4px;')
+console.log('%c[ZipLogic] 🚀 Dashboard.jsx ' + ZIPLOGIC_VERSION, 'background: #00ddff; color: black; font-size: 14px; padding: 4px 8px; border-radius: 4px;')
 
 // Config - WebSocket/API connects to api subdomain, not frontend
 const API_HOST = (() => {
@@ -183,433 +184,21 @@ const SystemBar = () => {
   )
 }
 
-/* ============================================
-   LIVE PREVIEW CARD - Cloudflare Tunnel (No WebContainer!)
-   ============================================ */
-const LivePreviewCard = ({ projectId, status, autoStart = false }) => {
-  const [previewStatus, setPreviewStatus] = useState('idle')
-  const [previewUrl, setPreviewUrl] = useState(null)
-  const [error, setError] = useState(null)
-  const [iframeLoaded, setIframeLoaded] = useState(false)
-  const [runMode, setRunMode] = useState(null)
-  const [isFixing, setIsFixing] = useState(false)
-  const [fixMessage, setFixMessage] = useState('')
-  const [consoleLogs, setConsoleLogs] = useState([])
-  const iframeRef = useRef(null)
-  const startedRef = useRef(false)
-  const pollIntervalRef = useRef(null)
-  const [aiFixing, setAiFixing] = useState(false)
-  const [aiFixStatus, setAiFixStatus] = useState('')
-  const [browserErrors, setBrowserErrors] = useState([])
-
-  // Listen for browser errors from iframe (postMessage)
-  useEffect(() => {
-    const handler = (event) => {
-      if (event.data && event.data.type === 'PREVIEW_ERROR' && event.data.errors) {
-        const newErrors = event.data.errors.map(e => ({
-          type: 'error',
-          text: `[Browser] ${e.type}: ${e.message}${e.source ? ` (${e.source}:${e.line}:${e.col})` : ''}`,
-          stack: e.stack || '',
-          time: new Date().toLocaleTimeString()
-        }))
-        setBrowserErrors(prev => {
-          // Deduplicate by message
-          const existing = new Set(prev.map(e => e.text))
-          const unique = newErrors.filter(e => !existing.has(e.text))
-          return [...prev, ...unique].slice(-50) // Keep last 50
-        })
-        // Also add to console logs for display
-        newErrors.forEach(e => {
-          setConsoleLogs(prev => {
-            if (prev.some(l => l.text === e.text)) return prev
-            return [...prev, e].slice(-100)
-          })
-        })
-      }
-    }
-    window.addEventListener('message', handler)
-    return () => window.removeEventListener('message', handler)
-  }, [])
-
-  const handleAiFix = async () => {
-    const errorLogs = consoleLogs.filter(l => l.type === 'error')
-    const allBrowserErrors = browserErrors
-    if (errorLogs.length === 0 && allBrowserErrors.length === 0 && !error) return
-    
-    // Prioritize browser errors (actual runtime errors from iframe)
-    let primaryError = ''
-    let allErrorsText = ''
-    
-    if (allBrowserErrors.length > 0) {
-      // Use browser errors — these are REAL runtime errors
-      primaryError = allBrowserErrors[allBrowserErrors.length - 1]?.text || ''
-      allErrorsText = allBrowserErrors.map(e => `${e.text}${e.stack ? '\nStack: ' + e.stack : ''}`).join('\n\n')
-    } else {
-      // Fallback to console logs (server-side compile errors)
-      const filtered = errorLogs
-        .filter(l => !l.text.includes('AI Fix error') && !l.text.includes('AI Fix failed') && !l.text.includes('Request failed'))
-      primaryError = error || filtered[filtered.length - 1]?.text || errorLogs[errorLogs.length - 1]?.text || 'Unknown error'
-      allErrorsText = filtered.map(l => l.text).join('\n')
-    }
-    
-    // Also get server-side logs for more context
-    let serverErrors = ''
-    try {
-      const logsRes = await api.get(`/agents_v3/preview/logs/?project_id=${projectId}&last=50`)
-      if (logsRes.data.success && logsRes.data.logs) {
-        serverErrors = logsRes.data.logs
-          .filter(l => l.type === 'error' || (l.text && l.text.toLowerCase().includes('error')))
-          .map(l => l.text || l.message)
-          .join('\n')
-      }
-    } catch (e) { /* ignore */ }
-    
-    const fullError = `Frontend Error: ${primaryError}\n\nAll Errors:\n${allErrorsText}\n\nServer Logs:\n${serverErrors}`
-    
-    setAiFixing(true)
-    setAiFixStatus('fixing')
-    addLog('info', '🤖 AI Fix triggered — Universal Agent working...')
-    
-    try {
-      const response = await api.post('/agents_v3/preview/browser-errors/fix/', {
-        project_id: projectId,
-        error_message: fullError.substring(0, 2000),
-        error_file: '',
-        error_stack: allErrors.substring(0, 1000),
-        page_url: previewUrl || ''
-      })
-      
-      if (response.data.success) {
-        setAiFixStatus('fixed')
-        addLog('success', '✅ AI Fix applied! Reloading...')
-        setTimeout(() => {
-          if (iframeRef.current) iframeRef.current.src = iframeRef.current.src
-          setAiFixStatus('')
-        }, 3000)
-      } else {
-        setAiFixStatus('failed')
-        addLog('error', `❌ AI Fix failed: ${response.data.message || 'Unknown'}`)
-        setTimeout(() => setAiFixStatus(''), 3000)
-      }
-    } catch (err) {
-      setAiFixStatus('failed')
-      addLog('error', `❌ AI Fix error: ${err.message}`)
-      setTimeout(() => setAiFixStatus(''), 3000)
-    } finally {
-      setAiFixing(false)
-    }
-  }
-
-  const hasErrors = consoleLogs.some(l => l.type === 'error') || !!error
-
-  const addLog = (type, text) => {
-    console.log(`[Preview] [${type}]`, text)
-    setConsoleLogs(prev => [...prev.slice(-50), { type, text, time: new Date().toLocaleTimeString() }])
-  }
-
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-  // START PREVIEW - Cloudflare Tunnel API
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-  const startPreview = useCallback(async () => {
-    if (!projectId || startedRef.current) return
-    startedRef.current = true
-    
-    setPreviewStatus('starting')
-    setRunMode('cloudflare')
-    setError(null)
-    setIframeLoaded(false)
-    addLog('info', `ðŸš€ Starting preview... (${ZIPLOGIC_VERSION})`)
-
-    try {
-      addLog('info', 'ðŸ“¡ Calling backend preview API...')
-      
-      const response = await api.post('/agents_v3/preview/start/', {
-        project_id: projectId
-      })
-
-      if (response.data.success) {
-        const url = response.data.local_url || response.data.url
-        const local = response.data.local_url
-        
-        addLog('success', `âœ… Preview URL: ${url}`)
-        addLog('info', `ðŸ“ Local: ${local}`)
-        
-        setPreviewUrl(url)
-        setPreviewStatus('running')
-        
-        // Start polling for logs (for AI Fixer status)
-        startLogPolling()
-      } else {
-        throw new Error(response.data.error || 'Preview failed to start')
-      }
-    } catch (err) {
-      console.error('Preview error:', err)
-      const errMsg = err.response?.data?.error || err.message || 'Failed to start preview'
-      addLog('error', `âŒ ${errMsg}`)
-      setError(errMsg)
-      setPreviewStatus('error')
-      startedRef.current = false
-    }
-  }, [projectId])
-
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-  // STOP PREVIEW
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-  const stopPreview = useCallback(async () => {
-    if (!projectId) return
-    
-    addLog('info', 'ðŸ›‘ Stopping preview...')
-    
-    try {
-      await api.post('/agents_v3/preview/stop/', {
-        project_id: projectId
-      })
-      addLog('success', 'âœ… Preview stopped')
-    } catch (err) {
-      console.error('Stop preview error:', err)
-    }
-    
-    if (pollIntervalRef.current) {
-      clearInterval(pollIntervalRef.current)
-      pollIntervalRef.current = null
-    }
-    
-    // Full reset — allows fresh restart on next click
-    setPreviewStatus('idle')
-    setPreviewUrl(null)
-    setError(null)
-    setIframeLoaded(false)
-    setRunMode(null)
-    setIsFixing(false)
-    setFixMessage('')
-    setConsoleLogs([])
-    startedRef.current = false
-  }, [projectId])
-
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-  // POLL LOGS - Check for AI Fixer activity
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-  const startLogPolling = useCallback(() => {
-    if (pollIntervalRef.current) return
-    
-    pollIntervalRef.current = setInterval(async () => {
-      try {
-        const response = await api.get(`/agents_v3/preview/logs/?project_id=${projectId}&last=20`)
-        if (response.data.success && response.data.logs) {
-          response.data.logs.forEach(log => {
-            if (log.text && log.text.includes('AI Fix')) {
-              setIsFixing(true)
-              setFixMessage(log.text)
-              setTimeout(() => {
-                setIsFixing(false)
-                setFixMessage('')
-              }, 5000)
-            }
-            
-            // Add error logs to consoleLogs so hasErrors triggers AI Fix button
-            const logText = log.text || log.message || ''
-            const logType = log.type || 'info'
-            if (logText) {
-              setConsoleLogs(prev => {
-                if (prev.some(l => l.text === logText)) return prev
-                const newType = (logType === 'error' || logText.toLowerCase().includes('error') || logText.includes('500')) ? 'error' : logType
-                return [...prev.slice(-50), { type: newType, text: logText, time: new Date().toLocaleTimeString() }]
-              })
-            }
-          })
-        }
-      } catch (err) {
-        // Silently fail - just polling
-      }
-    }, 3000)
-  }, [projectId])
-
-  // Auto-start when status=completed and autoStart=true
-  useEffect(() => {
-    if (autoStart && status === 'completed' && projectId && previewStatus === 'idle') {
-      startPreview()
-    }
-  }, [autoStart, status, projectId, previewStatus, startPreview])
-
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      if (pollIntervalRef.current) {
-        clearInterval(pollIntervalRef.current)
-      }
-    }
-  }, [])
-
-  // Reset when project changes
-  useEffect(() => {
-    setPreviewStatus('idle')
-    setPreviewUrl(null)
-    startedRef.current = false
-    setFixMessage('')
-    if (pollIntervalRef.current) {
-      clearInterval(pollIntervalRef.current)
-      pollIntervalRef.current = null
-    }
-  }, [projectId])
-
-  const handleIframeLoad = () => setIframeLoaded(true)
-  const reloadPreview = () => {
-    if (iframeRef.current && previewUrl) {
-      setIframeLoaded(false)
-      iframeRef.current.src = previewUrl
-    }
-  }
-
-  return (
-    <div className="h-full flex flex-col bg-[#0a0e18]">
-      {/* Header */}
-      <div className="p-2 border-b border-white/[0.08] bg-black/30 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Monitor size={12} className="text-cyan-400" />
-          <span className="font-mono-space text-[9px] text-cyan-400 tracking-[1px]">LIVE PREVIEW</span>
-          {runMode && (
-            <span className="px-1.5 py-0.5 rounded text-[8px] bg-cyan-500/20 text-cyan-400">
-              CLOUDFLARE
-            </span>
-          )}
-        </div>
-        {previewStatus === 'running' && (
-          <div className="flex items-center gap-1">
-            <button onClick={reloadPreview} className="p-1 border border-white/10 rounded hover:border-cyan-500/30 transition-all" title="Reload">
-              <RefreshCw size={10} className="text-white/50" />
-            </button>
-            <button onClick={stopPreview} className="p-1 border border-red-500/20 rounded hover:border-red-500/40 transition-all" title="Stop">
-              <Square size={10} className="text-red-400" />
-            </button>
-            {previewUrl && (
-              <a href={previewUrl} target="_blank" rel="noopener noreferrer" className="p-1 border border-white/10 rounded hover:border-cyan-500/30 transition-all" title="Open">
-                <ExternalLink size={10} className="text-white/50" />
-              </a>
-            )}
-          </div>
-        )}
-      </div>
-
-      {/* Preview content */}
-      <div className="flex-1 relative overflow-hidden">
-        {/* Fix message */}
-        {fixMessage && (
-          <div className="absolute top-0 inset-x-0 px-2 py-1 bg-purple-500/20 border-b border-purple-500/30 z-20 flex items-center gap-2">
-            {isFixing ? <Loader2 size={10} className="animate-spin text-purple-400" /> : <Sparkles size={10} className="text-purple-400" />}
-            <span className="text-purple-400 text-[9px] font-mono-space">{fixMessage}</span>
-          </div>
-        )}
-
-        {/* IDLE */}
-        {previewStatus === 'idle' && (
-          <div className="h-full flex items-center justify-center">
-            <button onClick={startPreview}
-              className="flex items-center gap-2 px-4 py-2 bg-cyan-500/10 border border-cyan-500/25 text-cyan-400 hover:bg-cyan-500/20 transition-all font-mono-space text-[10px]">
-              <Play size={12} /> START PREVIEW
-            </button>
-          </div>
-        )}
-
-        {/* STARTING */}
-        {previewStatus === 'starting' && (
-          <div className="h-full flex items-center justify-center">
-            <div className="text-center">
-              <Loader2 size={32} className="mx-auto mb-3 text-cyan-400 animate-spin" />
-              <p className="text-cyan-400 text-[10px] font-mono-space tracking-[1px]">STARTING SERVER...</p>
-              <p className="text-white/40 text-[9px] font-mono-space mt-1">Installing deps & creating tunnel</p>
-            </div>
-          </div>
-        )}
-
-        {/* RUNNING */}
-        {previewStatus === 'running' && previewUrl && (
-          <div className="h-full relative">
-            {!iframeLoaded && (
-              <div className="absolute inset-0 flex items-center justify-center bg-black/60 z-10">
-                <Loader2 size={24} className="text-cyan-400 animate-spin" />
-              </div>
-            )}
-            <iframe
-              ref={iframeRef}
-              src={previewUrl}
-              onLoad={handleIframeLoad}
-              className="w-full h-full border-none bg-white"
-              title="Live Preview"
-              sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
-            />
-
-            {/* AI Fix Button */}
-            {hasErrors && (
-              <div className="absolute top-2 right-2 z-20">
-                {aiFixStatus === 'fixing' ? (
-                  <div className="flex items-center gap-1.5 px-3 py-1.5 bg-purple-600 text-white rounded-md text-[9px] font-mono-space animate-pulse">
-                    <Loader2 size={10} className="animate-spin" /> Agent fixing...
-                  </div>
-                ) : aiFixStatus === 'fixed' ? (
-                  <div className="flex items-center gap-1.5 px-3 py-1.5 bg-green-600 text-white rounded-md text-[9px] font-mono-space">
-                    <CheckCircle size={10} /> Fixed! Reloading...
-                  </div>
-                ) : aiFixStatus === 'failed' ? (
-                  <div className="flex items-center gap-1.5 px-3 py-1.5 bg-red-600 text-white rounded-md text-[9px] font-mono-space">
-                    <AlertCircle size={10} /> Could not fix
-                  </div>
-                ) : (
-                  <button
-                    onClick={handleAiFix}
-                    disabled={aiFixing}
-                    className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-700 hover:to-cyan-700 text-white rounded-md text-[9px] font-mono-space tracking-wider cursor-pointer border-none transition-all hover:scale-105"
-                  >
-                    <Zap size={10} /> AI FIX
-                  </button>
-                )}
-              </div>
-            )}
-
-            {/* URL overlay at bottom */}
-            <div className="absolute bottom-0 inset-x-0 p-2 bg-gradient-to-t from-black/80 to-transparent">
-              <div className="flex items-center justify-between">
-                <span className="font-mono-space text-[8px] text-cyan-400/70 truncate max-w-[200px]">{previewUrl}</span>
-                <button onClick={stopPreview}
-                  className="font-mono-space text-[8px] text-red-400/60 hover:text-red-400 transition-colors border border-red-500/20 hover:border-red-500/40 px-2 py-1 bg-transparent cursor-pointer flex items-center gap-1">
-                  <Square size={8} /> STOP
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ERROR */}
-        {previewStatus === 'error' && (
-          <div className="h-full flex items-center justify-center">
-            <div className="text-center px-4">
-              <AlertCircle size={32} className="mx-auto mb-3 text-red-400" />
-              <p className="text-red-400 text-sm mb-1 font-rajdhani font-semibold">Preview failed</p>
-              <p className="text-white/30 text-[10px] font-mono-space max-w-[200px] mx-auto mb-3">{error}</p>
-              <button onClick={() => { startedRef.current = false; startPreview() }}
-                className="clip-skew-sm px-4 py-2 font-orbitron text-[9px] font-bold tracking-[1.5px] uppercase text-cyan-400 bg-cyan-500/10 border border-cyan-500/25 hover:bg-cyan-500/20 transition-all cursor-pointer flex items-center gap-2 mx-auto">
-                <RefreshCw size={10} /> Try again
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  )
-}
 
 /* ============================================
    FULLSCREEN PREVIEW MODAL
    ============================================ */
 const PreviewModal = ({ project, isOpen, onClose }) => {
-  if (!isOpen || !project) return null
+  const [previewKey, setPreviewKey] = useState(0);
   
-  // Stop preview when closing modal
-  const handleClose = async () => {
-    try {
-      await api.post('/agents_v3/preview/stop/', { project_id: project.id })
-    } catch {}
-    onClose()
-  }
+  // Don't fetch files here - let LivePreview handle it on-demand
+  if (!isOpen || !project) return null;
+  
+  const handleClose = () => {
+    // Force unmount LivePreview by changing key
+    setPreviewKey(prev => prev + 1);
+    onClose();
+  };
   
   return (
     <div className="fixed inset-0 z-[9000] flex items-center justify-center bg-black/85 backdrop-blur-lg" onClick={handleClose}>
@@ -624,12 +213,19 @@ const PreviewModal = ({ project, isOpen, onClose }) => {
           </div>
         </div>
         <div className="w-full" style={{ height: 'calc(100% - 52px)' }}>
-          <LivePreviewCard projectId={project.id} status={project.status} autoStart={true} />
+          <LivePreview 
+            key={previewKey} 
+            projectId={project.id} 
+            files={{}} 
+            status={project.status} 
+            autoStart={true}
+            previewUrl={project.preview_url}
+          />
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
 /* ============================================
    POWER CORE (animated ring) - NOW SHOWS BUILDS USAGE
@@ -702,6 +298,9 @@ const StatCard = ({ label, value, sub, color, barWidth, icon: Icon }) => {
    PROJECT CARD - with Live Preview
    ============================================ */
 const ProjectCard = ({ project, onDelete, onFullPreview, viewMode }) => {
+  // Don't auto-fetch files - let LivePreview handle it on-demand
+  const files = {}
+  
   const statusColor = project.status === 'completed' ? 'bg-green-400 shadow-[0_0_6px_#00ff88] text-green-400' : project.status === 'failed' ? 'bg-red-500 shadow-[0_0_6px_#ff3344] text-red-400' : 'bg-amber-400 shadow-[0_0_6px_#ffaa00] text-amber-400'
   const statusLabel = project.status === 'completed' ? 'ONLINE' : project.status === 'failed' ? 'FAILED' : 'BUILDING'
   const tags = ['REACT', 'NODE.JS', 'LIVE']
@@ -719,7 +318,14 @@ const ProjectCard = ({ project, onDelete, onFullPreview, viewMode }) => {
 
       {/* Preview Area */}
       <div className={`relative overflow-hidden bg-[#0a0e18] ${viewMode==='list'?'w-80 h-[200px] flex-shrink-0':'w-full h-[260px]'}`}>
-        <LivePreviewCard projectId={project.id} status={project.status} />
+        <LivePreview 
+          key={`card-${project.id}`} 
+          projectId={project.id} 
+          files={files} 
+          status={project.status} 
+          autoStart={false}
+          previewUrl={project.preview_url}
+        />
         {/* Hover overlay */}
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[rgba(2,8,16,0.95)] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-20">
           <div className="flex gap-2 translate-y-2 group-hover:translate-y-0 transition-transform">
@@ -996,7 +602,7 @@ export default function Dashboard() {
                 <Crown size={14} className="text-amber-400" />
                 <span className="font-mono-space text-[10px] text-amber-400 tracking-[1px] uppercase">{usage.plan_name}</span>
                 {usage.days_until_reset && (
-                  <span className="font-mono-space text-[9px] text-amber-400/60">â€¢ {usage.days_until_reset}d reset</span>
+                  <span className="font-mono-space text-[9px] text-amber-400/60">• {usage.days_until_reset}d reset</span>
                 )}
               </div>
             )}
@@ -1025,16 +631,16 @@ export default function Dashboard() {
           <div className="flex flex-col gap-3">
             <StatCard 
               label="Projects" 
-              value={<>{projectsUsed}<span className="text-base opacity-40">/{projectLimit === 99999 ? 'âˆž' : projectLimit}</span></>} 
-              sub={`${usage?.projects_remaining || 0} remaining this month`}
+              value={<>{projectsUsed}<span className="text-base opacity-40">/{projectLimit === 99999 ? 'Unlimited' : projectLimit}</span></>} 
+              sub={`${usage?.projects_remaining === 99999 ? 'Unlimited' : usage?.projects_remaining || 0} remaining this month`}
               color="cyan" 
               barWidth={usage?.projects_percent || 0} 
               icon={Folder}
             />
             <StatCard 
               label="AI Builds" 
-              value={<>{buildsUsed}<span className="text-base opacity-40">/{buildsLimit === 99999 ? 'âˆž' : buildsLimit}</span></>} 
-              sub={`${usage?.builds_remaining || 0} remaining this month`}
+              value={<>{buildsUsed}<span className="text-base opacity-40">/{buildsLimit === 99999 ? 'Unlimited' : buildsLimit}</span></>} 
+              sub={`${usage?.builds_remaining === 99999 ? 'Unlimited' : usage?.builds_remaining || 0} remaining this month`}
               color="purple" 
               barWidth={usage?.builds_percent || 0} 
               icon={Zap}
@@ -1046,8 +652,8 @@ export default function Dashboard() {
           <div className="flex flex-col gap-3">
             <StatCard 
               label="AI Fixes" 
-              value={<>{fixesUsed}<span className="text-base opacity-40">/{fixesLimit === 99999 ? 'âˆž' : fixesLimit}</span></>} 
-              sub={`${usage?.fixes_remaining || 0} remaining this month`}
+              value={<>{fixesUsed}<span className="text-base opacity-40">/{fixesLimit === 99999 ? 'Unlimited' : fixesLimit}</span></>} 
+              sub={`${usage?.fixes_remaining === 99999 ? 'Unlimited' : usage?.fixes_remaining || 0} remaining this month`}
               color="green" 
               barWidth={usage?.fixes_percent || 0} 
               icon={Wrench}
@@ -1086,6 +692,53 @@ export default function Dashboard() {
                 <span className="font-orbitron text-lg font-bold text-white">{usage.total_fixes}</span>
                 <span className="font-mono-space text-[10px] text-[#a4cceb]">fixes</span>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* === SUBSCRIPTION PLAN DETAILS === */}
+        {usage?.plan_details && (
+          <div className="mb-6 p-4 bg-[#071020] border border-[#0e1e38]">
+            <div className="flex items-center gap-2 mb-3">
+              <Crown size={14} className="text-fuchsia-400" />
+              <span className="font-mono-space text-[10px] tracking-[2px] text-[#a4cceb] uppercase">// Plan Features & Limits</span>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {usage.plan_details.max_hosted_projects > 0 && (
+                <div className="flex flex-col">
+                  <span className="font-mono-space text-[9px] text-cyan-400">Hosted Projects</span>
+                  <span className="font-orbitron text-sm font-bold text-white">{usage.plan_details.max_hosted_projects} free</span>
+                  <span className="font-mono-space text-[8px] text-[#6a8ba8]">${usage.plan_details.hosting_per_extra_project}/mo extra</span>
+                </div>
+              )}
+              {usage.plan_details.max_custom_domains > 0 && (
+                <div className="flex flex-col">
+                  <span className="font-mono-space text-[9px] text-cyan-400">Custom Domains</span>
+                  <span className="font-orbitron text-sm font-bold text-white">{usage.plan_details.max_custom_domains} free</span>
+                  <span className="font-mono-space text-[8px] text-[#6a8ba8]">${usage.plan_details.custom_domain_price}/mo extra</span>
+                </div>
+              )}
+              {usage.plan_details.overage_build_price > 0 && (
+                <div className="flex flex-col">
+                  <span className="font-mono-space text-[9px] text-cyan-400">Overage Builds</span>
+                  <span className="font-orbitron text-sm font-bold text-white">${usage.plan_details.overage_build_price}</span>
+                  <span className="font-mono-space text-[8px] text-[#6a8ba8]">per build</span>
+                </div>
+              )}
+              {usage.plan_details.pay_per_build_price > 0 && (
+                <div className="flex flex-col">
+                  <span className="font-mono-space text-[9px] text-cyan-400">Pay-per-Build</span>
+                  <span className="font-orbitron text-sm font-bold text-white">${usage.plan_details.pay_per_build_price}</span>
+                  <span className="font-mono-space text-[8px] text-[#6a8ba8]">{usage.plan_details.free_hosting_days} days hosting</span>
+                </div>
+              )}
+              {usage.plan_details.white_label_addon > 0 && (
+                <div className="flex flex-col">
+                  <span className="font-mono-space text-[9px] text-cyan-400">White-Label Add-on</span>
+                  <span className="font-orbitron text-sm font-bold text-white">${usage.plan_details.white_label_addon}/mo</span>
+                  <span className="font-mono-space text-[8px] text-[#6a8ba8]">optional</span>
+                </div>
+              )}
             </div>
           </div>
         )}

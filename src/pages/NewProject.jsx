@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../services/authStore';
 import api from '../services/api';
 import DiscoveryPanel from '../components/DiscoveryPanel';
+import LivePreview from '../components/LivePreview';
 import ziplogicLogo from '../images/ziplogic.png';
 import {
   Play, Square, RefreshCw, ExternalLink, Loader2, Terminal,
@@ -11,12 +12,12 @@ import {
   Cpu, Rocket, TestTube, Copy, Sparkles
 } from 'lucide-react';
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // VERSION IDENTIFIER - Check this in browser console!
 // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-const ZIPLOGIC_VERSION = 'v3.2.0-WS-FIX';
-console.log('%c[ZipLogic] ðŸš€ NewProject.jsx ' + ZIPLOGIC_VERSION, 'background: #00ff88; color: black; font-size: 14px; padding: 4px 8px; border-radius: 4px;');
-console.log('%c[ZipLogic] Preview: Manual Start Only (No Auto-Start)', 'color: #00ddff;');
+const ZIPLOGIC_VERSION = 'v4.0.0-STACKBLITZ';
+console.log('%c[ZipLogic] 🚀 NewProject.jsx ' + ZIPLOGIC_VERSION, 'background: #00ff88; color: black; font-size: 14px; padding: 4px 8px; border-radius: 4px;');
+console.log('%c[ZipLogic] Preview: Stackblitz SDK (No Local Build)', 'color: #00ddff;');
 
 // Config - WebSocket connects to API host (api.ziplogicai.com), not frontend host
 const API_HOST = (() => {
@@ -234,343 +235,6 @@ const CodeViewer = ({ file, content }) => !file ? (
 );
 
 /* ============================================
-   LIVE PREVIEW - FIXED: No Auto-Start!
-   ============================================ */
-const LivePreview = ({ projectId, status, files: contents = {}, techStack = {}, agentStatus, agentMessage }) => {
-  const [previewStatus, setPreviewStatus] = useState('idle');
-  const [previewUrl, setPreviewUrl] = useState(null);
-  const [error, setError] = useState(null);
-  const [iframeLoaded, setIframeLoaded] = useState(false);
-  const [runMode, setRunMode] = useState(null);
-  const [consoleLogs, setConsoleLogs] = useState([]);
-  const [showConsole, setShowConsole] = useState(false);
-  const iframeRef = useRef(null);
-  const [isFixing, setIsFixing] = useState(false);
-  const [fixMessage, setFixMessage] = useState('');
-  const [fixCount, setFixCount] = useState(0);
-  const pollIntervalRef = useRef(null);
-
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-  // IMPORTANT: Track if API call is in progress to prevent duplicates
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-  const isStartingRef = useRef(false);
-
-  const addLog = (type, text) => {
-    console.log(`[Preview] [${type}]`, text);
-    setConsoleLogs(prev => [...prev.slice(-100), { type, text, time: new Date().toLocaleTimeString() }]);
-  };
-
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-  // START PREVIEW - ONLY called on button click!
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-  const startPreview = useCallback(async () => {
-    // Prevent duplicate calls
-    if (!projectId) {
-      console.log('[Preview] No projectId, skipping');
-      return;
-    }
-
-    if (isStartingRef.current) {
-      console.log('[Preview] Already starting, skipping duplicate call');
-      return;
-    }
-
-    if (previewStatus === 'running' || previewStatus === 'starting') {
-      console.log('[Preview] Already running/starting, skipping');
-      return;
-    }
-
-    // Set flag to prevent duplicate calls
-    isStartingRef.current = true;
-
-    setPreviewStatus('starting');
-    setRunMode('cloudflare');
-    setError(null);
-    setIframeLoaded(false);
-    addLog('info', `ðŸš€ Starting preview... (${ZIPLOGIC_VERSION})`);
-
-    try {
-      addLog('info', 'ðŸ“¡ Calling backend preview API...');
-
-      const response = await api.post('/agents_v4/preview/start/', {
-        project_id: projectId
-      });
-
-      if (response.data.success) {
-        const url = response.data.url;
-        const local = response.data.local_url;
-
-        addLog('success', `âœ… Preview URL: ${url}`);
-        addLog('info', `ðŸ“ Local: ${local}`);
-
-        setPreviewUrl(url);
-        setPreviewStatus('running');
-
-        // Start polling for logs
-        startLogPolling();
-      } else {
-        throw new Error(response.data.error || 'Preview failed to start');
-      }
-    } catch (err) {
-      console.error('Preview error:', err);
-      const errMsg = err.response?.data?.error || err.message || 'Failed to start preview';
-      addLog('error', `âŒ ${errMsg}`);
-      setError(errMsg);
-      setPreviewStatus('error');
-    } finally {
-      // Reset flag after call completes
-      isStartingRef.current = false;
-    }
-  }, [projectId, previewStatus]);
-
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-  // STOP PREVIEW
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-  const stopPreview = useCallback(async () => {
-    if (!projectId) return;
-
-    addLog('info', 'ðŸ›‘ Stopping preview...');
-
-    try {
-      await api.post('/agents_v4/preview/stop/', {
-        project_id: projectId
-      });
-      addLog('success', 'âœ… Preview stopped');
-    } catch (err) {
-      console.error('Stop preview error:', err);
-    }
-
-    if (pollIntervalRef.current) {
-      clearInterval(pollIntervalRef.current);
-      pollIntervalRef.current = null;
-    }
-
-    // Full reset — allows fresh restart on next click
-    setPreviewStatus('idle');
-    setPreviewUrl(null);
-    setError(null);
-    setIframeLoaded(false);
-    setRunMode(null);
-    setIsFixing(false);
-    setFixMessage('');
-    setConsoleLogs([]);
-    isStartingRef.current = false;
-  }, [projectId]);
-
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-  // POLL LOGS
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-  const startLogPolling = useCallback(() => {
-    if (pollIntervalRef.current) return;
-
-    pollIntervalRef.current = setInterval(async () => {
-      try {
-        const response = await api.get(`/agents_v4/preview/logs/?project_id=${projectId}&last=20`);
-        if (response.data.success && response.data.logs) {
-          response.data.logs.forEach(log => {
-            if (log.text && log.text.includes('AI Fix')) {
-              setIsFixing(true);
-              setFixMessage(log.text);
-              setTimeout(() => {
-                setIsFixing(false);
-                setFixMessage('');
-              }, 5000);
-            }
-          });
-        }
-      } catch (err) {
-        // Silently fail
-      }
-    }, 5000);
-  }, [projectId]);
-
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-  // NO AUTO-START! Removed the useEffect that was auto-starting
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-  // REMOVED: useEffect that called startPreview on status === 'completed'
-
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      if (pollIntervalRef.current) {
-        clearInterval(pollIntervalRef.current);
-      }
-    };
-  }, []);
-
-  // Reset when project changes
-  useEffect(() => {
-    setFixCount(0);
-    setFixMessage('');
-    setPreviewStatus('idle');
-    setPreviewUrl(null);
-    isStartingRef.current = false;
-    if (pollIntervalRef.current) {
-      clearInterval(pollIntervalRef.current);
-      pollIntervalRef.current = null;
-    }
-  }, [projectId]);
-
-  const handleIframeLoad = () => setIframeLoaded(true);
-  const reloadPreview = () => {
-    if (iframeRef.current && previewUrl) {
-      setIframeLoaded(false);
-      iframeRef.current.src = previewUrl;
-    }
-  };
-
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-  // Handle button click - ONLY way to start preview
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-  const handleStartClick = () => {
-    console.log('[Preview] Start button clicked');
-    startPreview();
-  };
-
-  if (status !== 'completed') {
-    return (
-      <div className="h-full flex flex-col">
-        <div className="p-3 border-b border-white/[0.08] bg-black/20">
-          <h3 className="text-[#00ff88] text-[0.65rem] font-[Space_Mono,monospace] tracking-[2px] flex items-center gap-2">
-            <Monitor size={14} /> // LIVE_PREVIEW
-          </h3>
-        </div>
-        <div className="flex-1 flex items-center justify-center">
-          <div className="text-center">
-            <Loader2 size={40} className="mx-auto mb-4 text-[#00ddff] animate-spin" />
-            <p className="text-white/50 font-[Space_Mono,monospace] text-sm">Waiting for build to complete...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="h-full flex flex-col">
-      <div className="p-3 border-b border-white/[0.08] bg-black/20 flex items-center justify-between">
-        <h3 className="text-[#00ff88] text-[0.65rem] font-[Space_Mono,monospace] tracking-[2px] flex items-center gap-2">
-          <Monitor size={14} /> // LIVE_PREVIEW
-          {runMode && (
-            <span className={`ml-2 px-2 py-0.5 rounded text-[0.5rem] ${runMode === 'cloudflare' ? 'bg-[rgba(0,221,255,0.2)] text-cyan-400' : 'bg-[rgba(136,68,255,0.2)] text-purple-400'}`}>
-              {runMode === 'cloudflare' ? <><Server size={8} className="inline mr-1" />CLOUDFLARE</> : <><Zap size={8} className="inline mr-1" />INSTANT</>}
-            </span>
-          )}
-        </h3>
-        <div className="flex items-center gap-2">
-          {previewStatus === 'running' && (
-            <>
-              <button onClick={() => setShowConsole(!showConsole)} className="p-1.5 border border-white/[0.15] rounded hover:border-[rgba(0,255,136,0.4)] transition-all" title="Console">
-                <Terminal size={14} className="text-white/60" />
-              </button>
-              <button onClick={reloadPreview} className="p-1.5 border border-white/[0.15] rounded hover:border-[rgba(0,255,136,0.4)] transition-all" title="Reload">
-                <RefreshCw size={14} className="text-white/60" />
-              </button>
-              <button onClick={stopPreview} className="p-1.5 border border-red-500/30 rounded hover:border-red-500/50 transition-all" title="Stop">
-                <Square size={14} className="text-red-400" />
-              </button>
-              {previewUrl && (
-                <a href={previewUrl} target="_blank" rel="noopener noreferrer" className="p-1.5 border border-white/[0.15] rounded hover:border-[rgba(0,255,136,0.4)] transition-all" title="Open in new tab">
-                  <ExternalLink size={14} className="text-white/60" />
-                </a>
-              )}
-            </>
-          )}
-        </div>
-      </div>
-
-      {fixMessage && (
-        <div className="px-3 py-2 bg-[rgba(136,68,255,0.1)] border-b border-purple-500/20 flex items-center gap-2">
-          {isFixing ? <Loader2 size={14} className="animate-spin text-purple-400" /> : <Sparkles size={14} className="text-purple-400" />}
-          <span className="text-purple-400 text-xs font-[Space_Mono,monospace]">{fixMessage}</span>
-        </div>
-      )}
-
-      {agentStatus && (
-        <div className={`px-3 py-2 border-b flex items-center gap-2 ${agentStatus === 'fixing' ? 'bg-[rgba(136,68,255,0.15)] border-purple-500/30 animate-pulse' :
-          agentStatus === 'fixed' ? 'bg-[rgba(0,255,136,0.1)] border-[rgba(0,255,136,0.3)]' :
-            'bg-[rgba(255,68,68,0.1)] border-red-500/20'
-          }`}>
-          {agentStatus === 'fixing' ? (
-            <><Loader2 size={14} className="animate-spin text-purple-400" /><span className="text-purple-400 text-xs font-[Space_Mono,monospace]">🤖 {agentMessage}</span></>
-          ) : agentStatus === 'fixed' ? (
-            <><Sparkles size={14} className="text-[#00ff88]" /><span className="text-[#00ff88] text-xs font-[Space_Mono,monospace]">🤖 {agentMessage}</span></>
-          ) : (
-            <><AlertCircle size={14} className="text-red-400" /><span className="text-red-400 text-xs font-[Space_Mono,monospace]">🤖 {agentMessage}</span></>
-          )}
-        </div>
-      )}
-
-      <div className="flex-1 relative">
-        {showConsole && (
-          <div className="absolute inset-x-0 bottom-0 h-40 bg-black/90 border-t border-white/[0.1] z-10 overflow-auto p-2">
-            <div className="font-[Space_Mono,monospace] text-xs">
-              {consoleLogs.map((log, i) => (
-                <div key={i} className={`py-0.5 ${log.type === 'error' ? 'text-red-400' : log.type === 'success' ? 'text-green-400' : 'text-white/60'}`}>
-                  <span className="text-white/30 mr-2">[{log.time}]</span>{log.text}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-            IDLE STATE - Show "Start Preview" button
-            â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
-        {previewStatus === 'idle' && (
-          <div className="h-full flex items-center justify-center">
-            <button
-              onClick={handleStartClick}
-              disabled={isStartingRef.current}
-              className="flex items-center gap-2 px-6 py-3 bg-[rgba(0,255,136,0.1)] border border-[rgba(0,255,136,0.3)] rounded-xl text-[#00ff88] hover:bg-[rgba(0,255,136,0.2)] transition-all font-[Space_Mono,monospace] disabled:opacity-50 disabled:cursor-not-allowed">
-              <Play size={16} /> Start Preview
-            </button>
-          </div>
-        )}
-
-        {previewStatus === 'starting' && (
-          <div className="h-full flex items-center justify-center">
-            <div className="text-center">
-              <Loader2 size={40} className="mx-auto mb-4 text-[#00ddff] animate-spin" />
-              <p className="text-[#00ddff] font-[Space_Mono,monospace] text-sm">Starting preview server...</p>
-              <p className="text-white/40 font-[Space_Mono,monospace] text-xs mt-2">Installing dependencies & creating tunnel</p>
-            </div>
-          </div>
-        )}
-
-        {previewStatus === 'running' && previewUrl && (
-          <div className="h-full relative">
-            {!iframeLoaded && (
-              <div className="absolute inset-0 flex items-center justify-center bg-black/50 z-10">
-                <Loader2 size={32} className="text-[#00ff88] animate-spin" />
-              </div>
-            )}
-            <iframe ref={iframeRef} src={previewUrl} onLoad={handleIframeLoad}
-              className="w-full h-full border-none bg-white" title="Live Preview"
-              sandbox="allow-scripts allow-same-origin allow-forms allow-popups" />
-          </div>
-        )}
-
-        {previewStatus === 'error' && (
-          <div className="h-full flex items-center justify-center">
-            <div className="text-center">
-              <AlertCircle size={48} className="mx-auto mb-4 text-red-400" />
-              <p className="text-red-400 mb-2 font-[Rajdhani,sans-serif] text-lg">Failed to start preview</p>
-              <p className="text-white/40 text-sm max-w-md font-[Space_Mono,monospace]">{error}</p>
-              <button
-                onClick={handleStartClick}
-                disabled={isStartingRef.current}
-                className="mt-4 px-4 py-2 bg-[rgba(0,221,255,0.1)] text-[#00ddff] rounded-lg border border-[rgba(0,221,255,0.25)] hover:bg-[rgba(0,221,255,0.2)] text-sm transition-all font-[Space_Mono,monospace] flex items-center gap-2 mx-auto disabled:opacity-50">
-                <RefreshCw size={14} /> Try again
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
-
-/* ============================================
    PIPELINE - landing page themed
    ============================================ */
 const Pipeline = ({ step, progress, status }) => {
@@ -646,6 +310,8 @@ const NewProject = () => {
   const [agentStatus, setAgentStatus] = useState(null);
   const [agentMessage, setAgentMessage] = useState('');
   const [agentFixedFiles, setAgentFixedFiles] = useState([]);
+  const [stackblitzFiles, setStackblitzFiles] = useState({});
+  const [previewUrl, setPreviewUrl] = useState(null);  // Local preview URL from WebSocket
   const wsRef = useRef(null);
 
   // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
@@ -653,7 +319,7 @@ const NewProject = () => {
   // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
   const connectWebSocket = useCallback((pid) => {
     const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsUrl = `${wsProtocol}//${API_HOST}/ws/v3/project/${pid}/`;
+    const wsUrl = `${wsProtocol}//${API_HOST}/ws/v3/project/${pid}/?token=${localStorage.getItem('token')}`;
 
     console.log('ðŸ”Œ WebSocket connecting:', wsUrl);
 
@@ -673,7 +339,7 @@ const NewProject = () => {
           const type = msg.type;
           const data = msg.data || msg;  // â† FIX: Use msg.data if exists, else msg
 
-          console.log('ðŸ“¨ WS:', type);
+          console.log('📨 WS:', type);
 
           switch (type) {
             case 'connected':
@@ -702,7 +368,7 @@ const NewProject = () => {
             case 'files_batch':
               // Template files batch
               const batchFiles = data.files || msg.files || [];
-              console.log('ðŸ“¦ Files batch:', batchFiles.length, 'files');
+              console.log('📦 Files batch:', batchFiles.length, 'files');
               batchFiles.forEach(f => {
                 const filePath = f.path;
                 setFiles(prev => prev.find(p => p.path === filePath) ? prev : [...prev, { path: filePath, type: 'frontend', isNew: false }]);
@@ -745,6 +411,22 @@ const NewProject = () => {
               setMood('happy');
               setIsStreaming(false);
               if (data.tech_stack || msg.tech_stack) setTechStack(data.tech_stack || msg.tech_stack);
+              
+              // ═══════════════════════════════════════════════════════
+              // LOCAL PREVIEW URL HANDLING (from WebSocket)
+              // ═══════════════════════════════════════════════════════
+              if (data.preview_url) {
+                console.log('[Preview] ✅ Received preview URL from generation_complete:', data.preview_url);
+                setPreviewUrl(data.preview_url);
+                
+                // Auto-switch to preview tab
+                setTimeout(() => {
+                  console.log('[Preview] 🚀 Auto-switching to preview tab...');
+                  setTab('preview');
+                }, 500);
+              } else {
+                console.log('[Preview] ⚠️ No preview URL in generation_complete message');
+              }
               break;
 
             case 'discovery_questions':
@@ -813,6 +495,7 @@ const NewProject = () => {
     setStep('Analyzing requirements...');
     setFiles([]);
     setContents({});
+    setStackblitzFiles({});
     setError(null);
     setMood('working');
 
@@ -832,9 +515,9 @@ const NewProject = () => {
       // Prefer v4 generate endpoint, fallback to v3.
       let r;
       try {
-        r = await api.post('/agents_v4/generate/', payload);
+        r = await api.post('/agents_v5/generate/', payload);
       } catch (e) {
-        console.warn('agents_v4 generate failed, falling back to v3', e);
+        console.warn('agents_v5 generate failed, falling back to v4', e);
         r = await api.post('/agents_v3/generate/', payload);
       }
 
@@ -1036,7 +719,14 @@ const NewProject = () => {
                 <div className="flex-1 overflow-hidden">
                   {tab === 'code'
                     ? <CodeViewer file={selected} content={selected ? contents[selected.path] : null} />
-                    : <LivePreview projectId={projectId} status={status} files={getFilesObject()} techStack={techStack} agentStatus={agentStatus} agentMessage={agentMessage} />}
+                    : <LivePreview 
+                        key={projectId} 
+                        projectId={projectId} 
+                        files={stackblitzFiles} 
+                        status={status}
+                        autoStart={true}
+                        previewUrl={previewUrl}
+                      />}
                 </div>
               </div>
             </div>

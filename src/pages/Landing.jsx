@@ -51,7 +51,7 @@ export default function Landing() {
 
   const [payLoading, setPayLoading] = useState({ plan: null, error: null });
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  
+
   // Plans from API
   const [plans, setPlans] = useState([]);
   const [plansLoading, setPlansLoading] = useState(true);
@@ -220,7 +220,7 @@ nav.scrolled{background:var(--nav-bg-scroll)!important;box-shadow:0 4px 40px rgb
     if (!isAuthenticated || !token) {
       try {
         localStorage.setItem("post_login_intent", JSON.stringify({ type: "checkout", plan: planSlug, plan_id: planId }));
-      } catch {}
+      } catch { }
       go("/login");
       setPayLoading({ plan: null, error: null });
       return;
@@ -269,31 +269,25 @@ nav.scrolled{background:var(--nav-bg-scroll)!important;box-shadow:0 4px 40px rgb
         localStorage.removeItem("post_login_intent");
         startCheckout(intent.plan_id, intent.plan);
       }
-    } catch {}
+    } catch { }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated, token]);
 
   /* â”€â”€â”€ Fetch plans from API â”€â”€â”€ */
   useEffect(() => {
     const fetchPlans = async () => {
-      console.log('[Landing] Starting to fetch plans...');
       try {
         const response = await subscriptionsAPI.getPlans();
-        console.log('[Landing] Plans API Response:', response);
-        console.log('[Landing] Response data:', response.data);
-        
+
         // Handle paginated response (results) or direct array
         let apiPlans = [];
         if (response.data && Array.isArray(response.data.results)) {
           apiPlans = response.data.results;
-          console.log('[Landing] Using paginated results:', apiPlans.length, 'plans');
         } else if (Array.isArray(response.data)) {
           apiPlans = response.data;
-          console.log('[Landing] Using direct array:', apiPlans.length, 'plans');
         } else {
-          console.warn('[Landing] Unexpected API response format:', response.data);
         }
-        
+
         // Transform API data to match component structure
         const transformedPlans = apiPlans.map(plan => ({
           id: plan.id,
@@ -303,24 +297,28 @@ nav.scrolled{background:var(--nav-bg-scroll)!important;box-shadow:0 4px 40px rgb
           price_yearly: parseFloat(plan.price_yearly) || 0,
           description: plan.description || '',
           max_projects: plan.max_projects || 1,
+          max_ai_builds_per_month: plan.max_ai_builds_per_month || 5,
+          max_ai_fixes_per_month: plan.max_ai_fixes_per_month || 10,
+          max_hosted_projects: plan.max_hosted_projects || 0,
+          hosting_per_extra_project: parseFloat(plan.hosting_per_extra_project) || 4.99,
+          max_custom_domains: plan.max_custom_domains || 0,
+          custom_domain_price: parseFloat(plan.custom_domain_price) || 9.99,
+          overage_build_price: parseFloat(plan.overage_build_price) || 4.99,
+          pay_per_build_price: parseFloat(plan.pay_per_build_price) || 0,
+          free_hosting_days: plan.free_hosting_days || 0,
+          white_label_addon: parseFloat(plan.white_label_addon) || 99.00,
           features: Array.isArray(plan.features) ? plan.features : [],
           is_popular: plan.is_popular || false,
           support_level: plan.support_level || 'Community',
           team_seats: plan.team_seats || 1,
-          max_ai_builds_per_month: plan.max_ai_builds_per_month || 5,
         }));
-        
-        console.log('[Landing] Setting plans state with:', transformedPlans.length, 'plans');
+
         setPlans(transformedPlans);
       } catch (error) {
-        console.error('[Landing] Failed to fetch plans:', error);
-        console.error('[Landing] Error details:', error.message);
         if (error.response) {
-          console.error('[Landing] Error response:', error.response.data);
         }
       } finally {
         setPlansLoading(false);
-        console.log('[Landing] Plans loading finished');
       }
     };
     fetchPlans();
@@ -334,27 +332,22 @@ nav.scrolled{background:var(--nav-bg-scroll)!important;box-shadow:0 4px 40px rgb
     const timer = setTimeout(() => {
       // Skip if already booted or booting
       if (window.__webContainerInstance || window.__webContainerBooting) {
-        console.log('[Landing] WebContainer already ready/booting');
         return;
       }
-      
+
       // Dynamically import and boot WebContainer
       import('@webcontainer/api').then(wc => {
-        console.log('[Landing] 🚀 Pre-booting WebContainer in background...');
         window.__webContainerBooting = wc.WebContainer.boot().then(instance => {
           window.__webContainerInstance = instance;
           window.__webContainerBooting = null;
-          console.log('[Landing] âœ… WebContainer pre-booted & cached!');
           return instance;
         }).catch(err => {
           window.__webContainerBooting = null;
-          console.log('[Landing] WebContainer boot skipped:', err.message);
         });
       }).catch(() => {
-        console.log('[Landing] WebContainer API not available');
       });
     }, 3000);  // Wait 3 seconds after page load
-    
+
     return () => clearTimeout(timer);
   }, []);
 
@@ -372,8 +365,8 @@ nav.scrolled{background:var(--nav-bg-scroll)!important;box-shadow:0 4px 40px rgb
       const isDark = document.documentElement.dataset.theme === "dark";
       const n = Math.min(Math.floor((canvas.width * canvas.height) / 12000), 150);
       const colors = isDark
-        ? ["#00ff88","#00ddff","#8844ff","#00ff88","#00ff88","#00ddff"]
-        : ["#00aa55","#0088aa","#6633cc","#00aa55","#00aa55","#0088aa"];
+        ? ["#00ff88", "#00ddff", "#8844ff", "#00ff88", "#00ff88", "#00ddff"]
+        : ["#00aa55", "#0088aa", "#6633cc", "#00aa55", "#00aa55", "#0088aa"];
       particlesRef.current = Array.from({ length: n }).map(() => ({
         x: Math.random() * canvas.width, y: Math.random() * canvas.height,
         vx: (Math.random() - 0.5) * 0.45, vy: (Math.random() - 0.5) * 0.45,
@@ -430,17 +423,16 @@ nav.scrolled{background:var(--nav-bg-scroll)!important;box-shadow:0 4px 40px rgb
     document.querySelectorAll(".reveal").forEach((el) => obs.observe(el));
     window.addEventListener("scroll", onScroll, { passive: true });
     onScroll();
-    
+
     return () => {
       window.removeEventListener("scroll", onScroll);
       obs.disconnect();
     };
   }, []);
-  
+
   /* â”€â”€â”€ Re-observe reveal elements when plans load â”€â”€â”€ */
   useEffect(() => {
     if (!plansLoading && plans.length > 0) {
-      console.log('[Landing] Re-observing reveal elements after plans load');
       const obs = new IntersectionObserver(
         (entries) => entries.forEach((e) => e.isIntersecting && e.target.classList.add("vis")),
         { threshold: 0.08, rootMargin: "0px 0px -40px 0px" }
@@ -550,24 +542,24 @@ nav.scrolled{background:var(--nav-bg-scroll)!important;box-shadow:0 4px 40px rgb
       <svg className="fixed z-[2] pointer-events-none top-[10%]" style={{ filter: "drop-shadow(0 0 30px rgba(0,255,136,0.5))", animation: "flyL 22s linear infinite" }} width="120" height="60" viewBox="0 0 120 60">
         <defs><linearGradient id="ufg1" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stopColor="#00ff88" /><stop offset="100%" stopColor="#006633" /></linearGradient></defs>
         <ellipse cx="60" cy="25" rx="50" ry="15" fill="url(#ufg1)" /><ellipse cx="60" cy="20" rx="25" ry="15" fill="#88ffcc" opacity="0.6" /><ellipse cx="60" cy="18" rx="20" ry="12" fill="#aaffdd" opacity="0.4" /><ellipse cx="60" cy="30" rx="40" ry="8" fill="#004422" />
-        {[20,40,60,80,100].map((cx,i)=>(<circle key={i} cx={cx} cy={cx===60?33:cx===40||cx===80?32:30} r="4" fill="#00ffff"><animate attributeName="opacity" values="0.3;1;0.3" dur={`${0.8+i*0.1}s`} repeatCount="indefinite"/></circle>))}
+        {[20, 40, 60, 80, 100].map((cx, i) => (<circle key={i} cx={cx} cy={cx === 60 ? 33 : cx === 40 || cx === 80 ? 32 : 30} r="4" fill="#00ffff"><animate attributeName="opacity" values="0.3;1;0.3" dur={`${0.8 + i * 0.1}s`} repeatCount="indefinite" /></circle>))}
       </svg>
 
       <svg className="fixed z-[2] pointer-events-none top-[55%]" style={{ filter: "drop-shadow(0 0 30px rgba(0,255,136,0.5))", animation: "flyR 30s linear infinite", animationDelay: "-10s" }} width="100" height="50" viewBox="0 0 120 60">
         <defs><linearGradient id="ufg2" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stopColor="#00ddff" /><stop offset="100%" stopColor="#003366" /></linearGradient></defs>
         <ellipse cx="60" cy="25" rx="50" ry="15" fill="url(#ufg2)" /><ellipse cx="60" cy="20" rx="25" ry="15" fill="#88ddff" opacity="0.5" /><ellipse cx="60" cy="30" rx="40" ry="8" fill="#002244" />
-        {[25,50,75,95].map((cx,i)=>(<circle key={i} cx={cx} cy={cx<=25||cx>=95?30:33} r="4" fill={i%2===0?"#00ffff":"#00ff88"}><animate attributeName="opacity" values="0.3;1;0.3" dur={`${0.8+i*0.1}s`} repeatCount="indefinite"/></circle>))}
+        {[25, 50, 75, 95].map((cx, i) => (<circle key={i} cx={cx} cy={cx <= 25 || cx >= 95 ? 30 : 33} r="4" fill={i % 2 === 0 ? "#00ffff" : "#00ff88"}><animate attributeName="opacity" values="0.3;1;0.3" dur={`${0.8 + i * 0.1}s`} repeatCount="indefinite" /></circle>))}
       </svg>
 
       <svg className="fixed z-[2] pointer-events-none top-[78%]" style={{ filter: "drop-shadow(0 0 30px rgba(0,255,136,0.5))", animation: "flyL 38s linear infinite", animationDelay: "-22s" }} width="80" height="40" viewBox="0 0 120 60">
         <defs><linearGradient id="ufg3" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stopColor="#8844ff" /><stop offset="100%" stopColor="#331166" /></linearGradient></defs>
         <ellipse cx="60" cy="25" rx="50" ry="15" fill="url(#ufg3)" /><ellipse cx="60" cy="20" rx="25" ry="15" fill="#bb88ff" opacity="0.4" /><ellipse cx="60" cy="30" rx="40" ry="8" fill="#220044" />
-        {[30,60,90].map((cx,i)=>(<circle key={i} cx={cx} cy={cx===60?33:31} r="3.5" fill="#cc88ff"><animate attributeName="opacity" values="0.3;0.9;0.3" dur={`${0.8+i*0.2}s`} repeatCount="indefinite"/></circle>))}
+        {[30, 60, 90].map((cx, i) => (<circle key={i} cx={cx} cy={cx === 60 ? 33 : 31} r="3.5" fill="#cc88ff"><animate attributeName="opacity" values="0.3;0.9;0.3" dur={`${0.8 + i * 0.2}s`} repeatCount="indefinite" /></circle>))}
       </svg>
 
       <svg className="fixed z-[2] pointer-events-none top-[30%] opacity-60" style={{ filter: "drop-shadow(0 0 30px rgba(0,255,136,0.5))", animation: "flyR 26s linear infinite", animationDelay: "-5s" }} width="70" height="35" viewBox="0 0 120 60">
         <ellipse cx="60" cy="25" rx="50" ry="15" fill="url(#ufg1)" opacity="0.7" /><ellipse cx="60" cy="20" rx="25" ry="15" fill="#88ffcc" opacity="0.4" /><ellipse cx="60" cy="30" rx="40" ry="8" fill="#004422" opacity="0.7" />
-        {[35,60,85].map((cx,i)=>(<circle key={i} cx={cx} cy={cx===60?33:31} r="3" fill="#00ffff" opacity="0.5"><animate attributeName="opacity" values="0.2;0.7;0.2" dur={`${1+i*0.15}s`} repeatCount="indefinite"/></circle>))}
+        {[35, 60, 85].map((cx, i) => (<circle key={i} cx={cx} cy={cx === 60 ? 33 : 31} r="3" fill="#00ffff" opacity="0.5"><animate attributeName="opacity" values="0.2;0.7;0.2" dur={`${1 + i * 0.15}s`} repeatCount="indefinite" /></circle>))}
       </svg>
 
       {/* â•â•â• MINI ALIENS â•â•â• */}
@@ -583,8 +575,8 @@ nav.scrolled{background:var(--nav-bg-scroll)!important;box-shadow:0 4px 40px rgb
           <ellipse className="ma-eye" cx="32" cy="24" rx="6" ry="5" fill="#000" />
           <ellipse cx="18" cy="23" rx="3" ry="2.5" fill="#00ffff" />
           <ellipse cx="32" cy="23" rx="3" ry="2.5" fill="#00ffff" />
-          <line x1="25" y1="12" x2="25" y2={i===0?"5":"6"} stroke={a.stroke} strokeWidth="2" strokeLinecap="round" />
-          <circle cx="25" cy={i===0?4:5} r={a.cr} fill="#00ffff"><animate attributeName="opacity" values={`${i===2?"0.4":"0.5"};${i===2?"0.9":"1"};${i===2?"0.4":"0.5"}`} dur={a.cd} repeatCount="indefinite" /></circle>
+          <line x1="25" y1="12" x2="25" y2={i === 0 ? "5" : "6"} stroke={a.stroke} strokeWidth="2" strokeLinecap="round" />
+          <circle cx="25" cy={i === 0 ? 4 : 5} r={a.cr} fill="#00ffff"><animate attributeName="opacity" values={`${i === 2 ? "0.4" : "0.5"};${i === 2 ? "0.9" : "1"};${i === 2 ? "0.4" : "0.5"}`} dur={a.cd} repeatCount="indefinite" /></circle>
         </svg>
       ))}
 
@@ -602,7 +594,7 @@ nav.scrolled{background:var(--nav-bg-scroll)!important;box-shadow:0 4px 40px rgb
           style={{ color: "var(--text-primary)" }}
           onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: "smooth" }); }}
         >
-         <span className="relative">
+          <span className="relative">
             <div className="absolute -inset-0.5 rounded-[10px] bg-[rgba(0,255,136,0.25)]" style={{ animation: "ping 2s cubic-bezier(0,0,0.2,1) infinite" }} />
             <img src={ziplogicLogo} alt="ZipLogic AI" width="50" height="34" className="rounded-[10px] relative z-[1]" />
           </span>
@@ -613,11 +605,11 @@ nav.scrolled{background:var(--nav-bg-scroll)!important;box-shadow:0 4px 40px rgb
         </a>
 
         <div className="flex items-center gap-3 sm:gap-7">
-          <div className="desktop-nav-links" style={{display:"flex",alignItems:"center",gap:"1.75rem"}}>
-          <a href="#how-it-works" className=" text-[var(--text-muted)] no-underline text-[0.92rem] font-medium transition-colors hover:text-[var(--green)]" onClick={(e) => { e.preventDefault(); scrollToId("how-it-works"); }}>How It Works</a>
-          <a href="#features" className="text-[var(--text-muted)] no-underline text-[0.92rem] font-medium transition-colors hover:text-[var(--green)]" onClick={(e) => { e.preventDefault(); scrollToId("features"); }}>Features</a>
-          <a href="#pricing" className="text-[var(--text-muted)] no-underline text-[0.92rem] font-medium transition-colors hover:text-[var(--green)]" onClick={(e) => { e.preventDefault(); scrollToId("pricing"); }}>Pricing</a>
-          <a href="#faq" className="text-[var(--text-muted)] no-underline text-[0.92rem] font-medium transition-colors hover:text-[var(--green)]" onClick={(e) => { e.preventDefault(); scrollToId("faq"); }}>FAQ</a>
+          <div className="desktop-nav-links" style={{ display: "flex", alignItems: "center", gap: "1.75rem" }}>
+            <a href="#how-it-works" className=" text-[var(--text-muted)] no-underline text-[0.92rem] font-medium transition-colors hover:text-[var(--green)]" onClick={(e) => { e.preventDefault(); scrollToId("how-it-works"); }}>How It Works</a>
+            <a href="#features" className="text-[var(--text-muted)] no-underline text-[0.92rem] font-medium transition-colors hover:text-[var(--green)]" onClick={(e) => { e.preventDefault(); scrollToId("features"); }}>Features</a>
+            <a href="#pricing" className="text-[var(--text-muted)] no-underline text-[0.92rem] font-medium transition-colors hover:text-[var(--green)]" onClick={(e) => { e.preventDefault(); scrollToId("pricing"); }}>Pricing</a>
+            <a href="#faq" className="text-[var(--text-muted)] no-underline text-[0.92rem] font-medium transition-colors hover:text-[var(--green)]" onClick={(e) => { e.preventDefault(); scrollToId("faq"); }}>FAQ</a>
           </div>
 
           <button
@@ -637,7 +629,7 @@ nav.scrolled{background:var(--nav-bg-scroll)!important;box-shadow:0 4px 40px rgb
           >
             OPEN APP’
           </button>
-        
+
 
           <button
             className={`hamburger-btn ${mobileMenuOpen ? "active" : ""}`}
@@ -651,7 +643,7 @@ nav.scrolled{background:var(--nav-bg-scroll)!important;box-shadow:0 4px 40px rgb
         </div>
       </nav>
 
-      
+
       {/* MOBILE MENU */}
       <div
         className={`mobile-menu-overlay ${mobileMenuOpen ? "open" : ""}`}
@@ -695,7 +687,7 @@ nav.scrolled{background:var(--nav-bg-scroll)!important;box-shadow:0 4px 40px rgb
         </div>
       </div>
 
-{/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
           HERO
          â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
       <section className="relative z-10 min-h-screen flex flex-col items-center justify-center pt-[120px] pb-20 px-8 text-center">
@@ -720,7 +712,7 @@ nav.scrolled{background:var(--nav-bg-scroll)!important;box-shadow:0 4px 40px rgb
               <path d="M70 110 Q60 140 70 165 Q85 180 100 180 Q115 180 130 165 Q140 140 130 110" fill="url(#alienBodyDark)" />
               <ellipse cx="100" cy="75" rx="55" ry="50" fill="url(#alienBody)" />
               <ellipse cx="100" cy="75" rx="55" ry="50" fill="url(#alienShine)" />
-              
+
             </g>
             <g opacity="0.5"><path d="M78 48 L122 48 L85 70 L122 70" stroke="#003322" strokeWidth="3.5" fill="none" strokeLinecap="round" strokeLinejoin="round" /></g>
             <ellipse cx="70" cy="85" rx="22" ry="18" fill="#002815" />
@@ -840,7 +832,7 @@ nav.scrolled{background:var(--nav-bg-scroll)!important;box-shadow:0 4px 40px rgb
           {[
             { n: "01", cls: "n1", title: "PLANNER", desc: "Analyzes your prompt. Maps requirements to architecture, decides tech stack, and produces a structured build plan — before a single line of code is written.", bg: "rgba(0,255,136,0.1)", color: "var(--green)", border: "rgba(0,255,136,0.2)" },
             { n: "02", cls: "n2", title: "DEVELOPER", desc: "Generates production-grade code file by file — frontend, backend, database schemas, auth, and API routes. Streamed to you in real time via WebSocket.", bg: "rgba(0,221,255,0.1)", color: "var(--cyan)", border: "rgba(0,221,255,0.2)" },
-            { n: "03", cls: "n3", title: "EXECUTOR", desc: "Spins up a Docker container, installs dependencies, runs your project, and gives you a live preview link. Fully reproducible. Every time.", bg: "rgba(136,68,255,0.1)", color: "var(--purple)", border: "rgba(136,68,255,0.2)" },
+            { n: "03", cls: "n3", title: "EXECUTOR", desc: "Spins up an isolated environment, installs dependencies, runs your project, and gives you a live preview link. Fully reproducible. Every time.", bg: "rgba(136,68,255,0.1)", color: "var(--purple)", border: "rgba(136,68,255,0.2)" },
           ].map((c, i) => (
             <div key={c.n} className={`text-center p-12 px-8 rounded-[20px] transition-all duration-400 hover:-translate-y-2 hover:shadow-[0_25px_70px_var(--card-shadow)] border reveal reveal-d${i + 1}`} style={{ background: "var(--surface)", borderColor: "var(--border)" }}>
               <div className="w-[52px] h-[52px] mx-auto mb-6 rounded-2xl flex items-center justify-center font-[Orbitron,sans-serif] font-extrabold text-[1.15rem] border" style={{ background: c.bg, color: c.color, borderColor: c.border }}>{c.n}</div>
@@ -866,7 +858,7 @@ nav.scrolled{background:var(--nav-bg-scroll)!important;box-shadow:0 4px 40px rgb
             { icon: "⚡", title: "FULL APPLICATION GENERATION", desc: "From a single prompt to a complete working application — frontend views, backend logic, database, and authentication. Not scaffolding. Real code." },
             { icon: "📡", title: "REAL-TIME STREAMING", desc: "Watch your application being built live. Every file streams via WebSocket — you see exactly what's being generated, as it happens." },
             { icon: "🧠", title: "MULTI-AGENT ARCHITECTURE", desc: "Three specialized AI agents collaborate: the Planner architects, the Developer codes, the Executor runs. Each optimized for its job." },
-            { icon: "🐳", title: "INSTANT DOCKER PREVIEW", desc: "Every project runs in an isolated Docker container. See your working app within seconds. No local setup required." },
+            { icon: "🌐", title: "INSTANT LIVE PREVIEW", desc: "Every project runs in an isolated environment. See your working app within seconds. No local setup required." },
             { icon: "🎯", title: "SMART TEMPLATES + CUSTOM CODE", desc: "Uses proven templates when they fit, generates fully custom code when needed. Best of both worlds — speed and flexibility." },
             { icon: "🔄", title: "DETERMINISTIC & REPRODUCIBLE", desc: "Same prompt, same output. Fully testable, auditable, version-controlled. Ship with confidence." },
           ].map((f, i) => (
@@ -910,95 +902,140 @@ nav.scrolled{background:var(--nav-bg-scroll)!important;box-shadow:0 4px 40px rgb
         </div>
       </section>
 
-     {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     PRICING
    â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
-<section id="pricing" className="relative z-10 py-[120px] px-8">
-  <div className="text-center">
-    <div className="font-[Space_Mono,monospace] text-[0.7rem] text-[var(--green)] tracking-[3px] mb-3 opacity-80 reveal">// PRICING_MATRIX</div>
-    <h2 className="font-[Orbitron,sans-serif] text-[clamp(1.8rem,3.5vw,2.8rem)] font-bold mb-4 text-[var(--text-primary)] reveal">SIMPLE, <span className="gradient">TRANSPARENT</span> PRICING</h2>
-    <p className="text-[var(--text-body)] text-[1.05rem] max-w-[560px] mx-auto leading-[1.7] reveal">Start free, upgrade when you need more. No hidden fees.</p>
-  </div>
+      <section id="pricing" className="relative z-10 py-[120px] px-8">
+        <div className="text-center">
+          <div className="font-[Space_Mono,monospace] text-[0.7rem] text-[var(--green)] tracking-[3px] mb-3 opacity-80 reveal">// PRICING_MATRIX</div>
+          <h2 className="font-[Orbitron,sans-serif] text-[clamp(1.8rem,3.5vw,2.8rem)] font-bold mb-4 text-[var(--text-primary)] reveal">SIMPLE, <span className="gradient">TRANSPARENT</span> PRICING</h2>
+          <p className="text-[var(--text-body)] text-[1.05rem] max-w-[560px] mx-auto leading-[1.7] reveal">Start free, upgrade when you need more. No hidden fees.</p>
+        </div>
 
-   <div className="pricing-grid max-w-[1200px] mx-auto mt-16 grid grid-cols-4 gap-5">
-     {(() => {
-       console.log('[Landing RENDER] plansLoading:', plansLoading, 'plans.length:', plans?.length, 'plans:', plans);
-       return null;
-     })()}
-     {plansLoading ? (
-       <div className="col-span-full text-center py-20">
-         <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[var(--green)]"></div>
-         <p className="mt-4 font-[Space_Mono,monospace] text-[var(--green)]">Loading plans...</p>
-       </div>
-     ) : plans.length === 0 ? (
-       <div className="col-span-full text-center py-20 text-[var(--text-muted)]">
-         No plans available at the moment.
-       </div>
-     ) : (
-       plans.map((plan, index) => {
-        const isPopular = plan.is_popular;
-        const isFree = plan.price_monthly === 0;
-        const delayClass = index === 0 ? 'reveal-d1' : index === 1 ? 'reveal-d2' : index === 2 ? 'reveal-d3' : 'reveal-d1';
-        
-        return (
-          <div 
-            key={plan.id} 
-            className={`p-[2.2rem_1.8rem] rounded-[20px] transition-all duration-400 relative flex flex-col hover:-translate-y-1.5 hover:shadow-[0_20px_60px_var(--card-shadow)] border reveal ${delayClass} ${isPopular ? 'price-pop scale-[1.03]' : ''}`}
-            style={{ 
-              background: isPopular ? "rgba(0,255,136,0.03)" : "var(--surface)", 
-              borderColor: isPopular ? "rgba(0,255,136,0.3)" : "var(--border)",
-              boxShadow: isPopular ? "0 0 60px rgba(0,255,136,0.06)" : undefined
-            }}
-          >
-            <div className="font-[Space_Mono,monospace] text-[0.65rem] text-[var(--text-muted)] tracking-[3px] mb-3">{plan.name.toUpperCase()}</div>
-            <div className={`font-[Orbitron,sans-serif] text-[2.2rem] font-extrabold mb-0.5 ${isPopular ? 'gradient-gc' : 'text-[var(--text-primary)]'}`}>
-              ${isFree ? '0' : plan.price_monthly}
+        <div className="pricing-grid max-w-[1200px] mx-auto mt-16 grid grid-cols-4 gap-5">
+          {(() => {
+            return null;
+          })()}
+          {plansLoading ? (
+            <div className="col-span-full text-center py-20">
+              <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[var(--green)]"></div>
+              <p className="mt-4 font-[Space_Mono,monospace] text-[var(--green)]">Loading plans...</p>
             </div>
-            <div className="text-[var(--text-muted)] text-[0.82rem] mb-2.5">{isFree ? 'forever' : 'per month'}</div>
-            <div className="text-[var(--text-body)] text-[0.88rem] mb-6 leading-[1.4]">{plan.description}</div>
-            <ul className="list-none p-0 mb-8 flex-1">
-              {plan.features.map((feature, i) => (
-                <li key={i} className="py-1.5 text-[var(--text-body)] text-[0.84rem] flex items-center gap-2">
-                  <span className="text-[var(--green)] font-bold shrink-0">✔</span>{feature}
-                </li>
-              ))}
-            </ul>
-            {isFree ? (
-              <button 
-                className="w-full py-3.5 rounded-xl font-[Orbitron,sans-serif] text-[0.72rem] font-bold tracking-[1px] transition-all cursor-default opacity-70 border" 
-                style={{ background: "var(--surface)", color: "var(--text-muted)", borderColor: "var(--border)" }} 
-                type="button"
-              >
-                CURRENT PLAN
-              </button>
-            ) : (
-              <button
-                className="w-full py-3.5 rounded-xl font-[Orbitron,sans-serif] text-[0.72rem] font-bold tracking-[1px] transition-all cursor-pointer border-none hover:shadow-[0_0_45px_rgba(0,255,136,0.4)] hover:-translate-y-0.5 disabled:opacity-75 disabled:cursor-not-allowed"
-                style={{ background: "linear-gradient(135deg,var(--green),#00cc66)", color: "#000", boxShadow: "0 0 20px rgba(0,255,136,0.2)" }}
-                type="button"
-                disabled={payLoading.plan === plan.slug}
-                onClick={() => startCheckout(plan.id, plan.slug)}
-              >
-                {payLoading.plan === plan.slug ? "REDIRECTINGâ€¦" : "UPGRADE NOW"}
-              </button>
-            )}
-          </div>
-        );
-      })
-    )}
-  </div>
+          ) : plans.length === 0 ? (
+            <div className="col-span-full text-center py-20 text-[var(--text-muted)]">
+              No plans available at the moment.
+            </div>
+          ) : (
+            plans.map((plan, index) => {
+              const isPopular = plan.is_popular;
+              const isFree = plan.price_monthly === 0;
+              const delayClass = index === 0 ? 'reveal-d1' : index === 1 ? 'reveal-d2' : index === 2 ? 'reveal-d3' : 'reveal-d1';
 
-  {payLoading.error && (
-    <p className="text-center mt-4 text-[var(--text-body)] text-[0.92rem]">
-      <span className="text-[var(--cyan)] font-[Space_Mono,monospace]">PAYMENTS_ERROR:</span> {payLoading.error}
-    </p>
-  )}
+              return (
+                <div
+                  key={plan.id}
+                  className={`p-[2.2rem_1.8rem] rounded-[20px] transition-all duration-400 relative flex flex-col hover:-translate-y-1.5 hover:shadow-[0_20px_60px_var(--card-shadow)] border reveal ${delayClass} ${isPopular ? 'price-pop scale-[1.03]' : ''}`}
+                  style={{
+                    background: isPopular ? "rgba(0,255,136,0.03)" : "var(--surface)",
+                    borderColor: isPopular ? "rgba(0,255,136,0.3)" : "var(--border)",
+                    boxShadow: isPopular ? "0 0 60px rgba(0,255,136,0.06)" : undefined
+                  }}
+                >
+                  <div className="font-[Space_Mono,monospace] text-[0.65rem] text-[var(--text-muted)] tracking-[3px] mb-3">{plan.name.toUpperCase()}</div>
+                  <div className={`font-[Orbitron,sans-serif] text-[2.2rem] font-extrabold mb-0.5 ${isPopular ? 'gradient-gc' : 'text-[var(--text-primary)]'}`}>
+                    ${isFree ? '0' : plan.price_monthly}
+                  </div>
+                  <div className="text-[var(--text-muted)] text-[0.82rem] mb-2.5">{isFree ? 'forever' : 'per month'}</div>
+                  <div className="text-[var(--text-body)] text-[0.88rem] mb-6 leading-[1.4]">{plan.description}</div>
+                  <ul className="list-none p-0 mb-4 flex-1">
+                    {plan.features.map((feature, i) => (
+                      <li key={i} className="py-1.5 text-[var(--text-body)] text-[0.84rem] flex items-center gap-2">
+                        <span className="text-[var(--green)] font-bold shrink-0">✔</span>{feature}
+                      </li>
+                    ))}
+                  </ul>
 
-  <p className="text-center mt-10 text-[var(--text-body)] text-[0.92rem] reveal">
-    All plans include unlimited downloads and project exports. Questions?{" "}
-    <a href="#" className="text-[var(--green)] no-underline font-semibold hover:opacity-80 transition-opacity" onClick={(e) => e.preventDefault()}>Contact us</a>
-  </p>
-</section>
+                  {/* NEW: Pricing Details */}
+                  {(plan.overage_build_price > 0 || plan.pay_per_build_price > 0 || plan.max_hosted_projects > 0 || plan.max_custom_domains > 0 || plan.white_label_addon > 0) && (
+                    <div className="mb-6 p-3 rounded-lg border" style={{ background: "rgba(0,255,136,0.02)", borderColor: "rgba(0,255,136,0.1)" }}>
+                      <div className="font-[Space_Mono,monospace] text-[0.65rem] text-[var(--green)] tracking-[2px] mb-2 opacity-80">// PRICING_DETAILS</div>
+                      <div className="space-y-1.5">
+                        {plan.max_hosted_projects > 0 && (
+                          <div className="flex justify-between items-center text-[0.75rem]">
+                            <span className="text-[var(--text-muted)]">Hosted Projects</span>
+                            <span className="text-[var(--text-primary)] font-bold">{plan.max_hosted_projects} free</span>
+                          </div>
+                        )}
+                        {plan.max_hosted_projects > 0 && plan.hosting_per_extra_project > 0 && (
+                          <div className="flex justify-between items-center text-[0.75rem]">
+                            <span className="text-[var(--text-muted)]">Extra Hosting</span>
+                            <span className="text-[var(--green)] font-bold">${plan.hosting_per_extra_project}/mo</span>
+                          </div>
+                        )}
+                        {plan.max_custom_domains > 0 && (
+                          <div className="flex justify-between items-center text-[0.75rem]">
+                            <span className="text-[var(--text-muted)]">Custom Domains</span>
+                            <span className="text-[var(--text-primary)] font-bold">{plan.max_custom_domains} free</span>
+                          </div>
+                        )}
+                        {plan.overage_build_price > 0 && (
+                          <div className="flex justify-between items-center text-[0.75rem]">
+                            <span className="text-[var(--text-muted)]">Overage Builds</span>
+                            <span className="text-[var(--cyan)] font-bold">${plan.overage_build_price} each</span>
+                          </div>
+                        )}
+                        {plan.pay_per_build_price > 0 && (
+                          <div className="flex justify-between items-center text-[0.75rem]">
+                            <span className="text-[var(--text-muted)]">Pay-per-Build</span>
+                            <span className="text-[var(--purple)] font-bold">${plan.pay_per_build_price}</span>
+                          </div>
+                        )}
+                        {plan.white_label_addon > 0 && plan.slug === 'agency' && (
+                          <div className="flex justify-between items-center text-[0.75rem]">
+                            <span className="text-[var(--text-muted)]">White-Label Add-on</span>
+                            <span className="text-[var(--purple)] font-bold">${plan.white_label_addon}/mo</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {isFree ? (
+                    <button
+                      className="w-full py-3.5 rounded-xl font-[Orbitron,sans-serif] text-[0.72rem] font-bold tracking-[1px] transition-all cursor-default opacity-70 border"
+                      style={{ background: "var(--surface)", color: "var(--text-muted)", borderColor: "var(--border)" }}
+                      type="button"
+                    >
+                      CURRENT PLAN
+                    </button>
+                  ) : (
+                    <button
+                      className="w-full py-3.5 rounded-xl font-[Orbitron,sans-serif] text-[0.72rem] font-bold tracking-[1px] transition-all cursor-pointer border-none hover:shadow-[0_0_45px_rgba(0,255,136,0.4)] hover:-translate-y-0.5 disabled:opacity-75 disabled:cursor-not-allowed"
+                      style={{ background: "linear-gradient(135deg,var(--green),#00cc66)", color: "#000", boxShadow: "0 0 20px rgba(0,255,136,0.2)" }}
+                      type="button"
+                      disabled={payLoading.plan === plan.slug}
+                      onClick={() => startCheckout(plan.id, plan.slug)}
+                    >
+                      {payLoading.plan === plan.slug ? "REDIRECTINGâ€¦" : "UPGRADE NOW"}
+                    </button>
+                  )}
+                </div>
+              );
+            })
+          )}
+        </div>
+
+        {payLoading.error && (
+          <p className="text-center mt-4 text-[var(--text-body)] text-[0.92rem]">
+            <span className="text-[var(--cyan)] font-[Space_Mono,monospace]">PAYMENTS_ERROR:</span> {payLoading.error}
+          </p>
+        )}
+
+        <p className="text-center mt-10 text-[var(--text-body)] text-[0.92rem] reveal">
+          All plans include unlimited downloads and project exports. Questions?{" "}
+          <a href="#" className="text-[var(--green)] no-underline font-semibold hover:opacity-80 transition-opacity" onClick={(e) => e.preventDefault()}>Contact us</a>
+        </p>
+      </section>
 
       {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
           FAQ
@@ -1009,7 +1046,7 @@ nav.scrolled{background:var(--nav-bg-scroll)!important;box-shadow:0 4px 40px rgb
           <h2 className="font-[Orbitron,sans-serif] text-[clamp(1.8rem,3.5vw,2.8rem)] font-bold mb-4 text-[var(--text-primary)] reveal"><span className="gradient">FAQ</span></h2>
         </div>
         <div className="max-w-[720px] mx-auto mt-12">
-          <FaqItem q="What is ZipLogic AI?" a="ZipLogic AI is an autonomous multi-agent system that generates complete, production-ready web applications from natural language descriptions. It plans, writes code, and runs everything in Docker — in about 60 seconds." />
+          <FaqItem q="What is ZipLogic AI?" a="ZipLogic AI is an autonomous multi-agent system that generates complete, production-ready web applications from natural language descriptions. It plans, writes code, and runs everything in an isolated environment — in about 60 seconds." />
           <FaqItem q="What kind of apps can it build?" a="Full-stack web applications including dashboards, CRUD apps, SaaS tools, landing pages, admin panels, and more. Generates React frontends, Node.js or Django backends, database models, and authentication." />
           <FaqItem q="Do I own the generated code?" a="Yes, 100%. Every line of code is yours to use, modify, and deploy commercially. Download it, push it to your repo, deploy it anywhere." />
           <FaqItem q="How is this different from other AI coding tools?" a="Most AI tools help you write individual files or answer questions. ZipLogic builds entire applications end-to-end — a multi-agent pipeline handling architecture, generation, and execution as one autonomous workflow." />
@@ -1048,27 +1085,27 @@ nav.scrolled{background:var(--nav-bg-scroll)!important;box-shadow:0 4px 40px rgb
               style={{ color: "var(--text-primary)" }}
               onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: "smooth" }); }}
             >
-<img src={ziplogicLogo} alt="ZipLogic AI" width="60" height="28" className="rounded-[8px]" />              
-ZipLogic AI
+              <img src={ziplogicLogo} alt="ZipLogic AI" width="60" height="28" className="rounded-[8px]" />
+              ZipLogic AI
             </a>
             <p className="text-[var(--footer-text)] text-[0.88rem] mt-2.5 max-w-[280px] leading-[1.6]">Autonomous software engineering. Turn your ideas into complete, deployable web applications.</p>
           </div>
 
           <div>
-  <h4 className="font-[Orbitron,sans-serif] text-[0.72rem] font-semibold tracking-[2px] mb-4 text-[var(--text-secondary)]">PRODUCT</h4>
-  <a href="#features" className="block text-[var(--footer-link)] no-underline text-[0.9rem] mb-3 transition-colors hover:text-[var(--green)]" onClick={(e) => { e.preventDefault(); scrollToId("features"); }}>Features</a>
-  <a href="#pricing" className="block text-[var(--footer-link)] no-underline text-[0.9rem] mb-3 transition-colors hover:text-[var(--green)]" onClick={(e) => { e.preventDefault(); scrollToId("pricing"); }}>Pricing</a>
-  <a href="#faq" className="block text-[var(--footer-link)] no-underline text-[0.9rem] mb-3 transition-colors hover:text-[var(--green)]" onClick={(e) => { e.preventDefault(); scrollToId("faq"); }}>FAQ</a>
-  <a href="/dashboard" className="block text-[var(--footer-link)] no-underline text-[0.9rem] mb-3 transition-colors hover:text-[var(--green)]" onClick={(e) => { e.preventDefault(); navigate(isAuthenticated ? "/dashboard" : "/login"); }}>Dashboard</a>
-</div>
+            <h4 className="font-[Orbitron,sans-serif] text-[0.72rem] font-semibold tracking-[2px] mb-4 text-[var(--text-secondary)]">PRODUCT</h4>
+            <a href="#features" className="block text-[var(--footer-link)] no-underline text-[0.9rem] mb-3 transition-colors hover:text-[var(--green)]" onClick={(e) => { e.preventDefault(); scrollToId("features"); }}>Features</a>
+            <a href="#pricing" className="block text-[var(--footer-link)] no-underline text-[0.9rem] mb-3 transition-colors hover:text-[var(--green)]" onClick={(e) => { e.preventDefault(); scrollToId("pricing"); }}>Pricing</a>
+            <a href="#faq" className="block text-[var(--footer-link)] no-underline text-[0.9rem] mb-3 transition-colors hover:text-[var(--green)]" onClick={(e) => { e.preventDefault(); scrollToId("faq"); }}>FAQ</a>
+            <a href="/dashboard" className="block text-[var(--footer-link)] no-underline text-[0.9rem] mb-3 transition-colors hover:text-[var(--green)]" onClick={(e) => { e.preventDefault(); navigate(isAuthenticated ? "/dashboard" : "/login"); }}>Dashboard</a>
+          </div>
 
-<div>
-  <h4 className="font-[Orbitron,sans-serif] text-[0.72rem] font-semibold tracking-[2px] mb-4 text-[var(--text-secondary)]">COMPANY</h4>
-  <a href="/about" className="block text-[var(--footer-link)] no-underline text-[0.9rem] mb-3 transition-colors hover:text-[var(--green)]" onClick={(e) => handleNavigation(e, "/about")}>About</a>
-  <a href="/contact" className="block text-[var(--footer-link)] no-underline text-[0.9rem] mb-3 transition-colors hover:text-[var(--green)]" onClick={(e) => handleNavigation(e, "/contact")}>Contact</a>
-  <a href="/privacy" className="block text-[var(--footer-link)] no-underline text-[0.9rem] mb-3 transition-colors hover:text-[var(--green)]" onClick={(e) => handleNavigation(e, "/privacy")}>Privacy</a>
-  <a href="/terms" className="block text-[var(--footer-link)] no-underline text-[0.9rem] mb-3 transition-colors hover:text-[var(--green)]" onClick={(e) => handleNavigation(e, "/terms")}>Terms</a>
-</div>
+          <div>
+            <h4 className="font-[Orbitron,sans-serif] text-[0.72rem] font-semibold tracking-[2px] mb-4 text-[var(--text-secondary)]">COMPANY</h4>
+            <a href="/about" className="block text-[var(--footer-link)] no-underline text-[0.9rem] mb-3 transition-colors hover:text-[var(--green)]" onClick={(e) => handleNavigation(e, "/about")}>About</a>
+            <a href="/contact" className="block text-[var(--footer-link)] no-underline text-[0.9rem] mb-3 transition-colors hover:text-[var(--green)]" onClick={(e) => handleNavigation(e, "/contact")}>Contact</a>
+            <a href="/privacy" className="block text-[var(--footer-link)] no-underline text-[0.9rem] mb-3 transition-colors hover:text-[var(--green)]" onClick={(e) => handleNavigation(e, "/privacy")}>Privacy</a>
+            <a href="/terms" className="block text-[var(--footer-link)] no-underline text-[0.9rem] mb-3 transition-colors hover:text-[var(--green)]" onClick={(e) => handleNavigation(e, "/terms")}>Terms</a>
+          </div>
         </div>
 
         <div className="footer-bottom max-w-[1100px] mx-auto mt-12 pt-8 border-t border-[var(--border)] flex justify-between text-[var(--footer-muted)] text-[0.8rem]">

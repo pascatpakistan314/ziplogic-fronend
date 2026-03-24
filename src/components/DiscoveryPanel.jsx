@@ -92,7 +92,7 @@ function QuestionCard({ question, answer, onChange, index }) {
           className="w-full px-4 py-3 rounded-xl bg-black/30 border border-white/[0.1] text-white placeholder:text-white/20 focus:outline-none focus:border-white/[0.25] resize-none text-sm transition-all"
           style={{ fontFamily: 'Space Mono, monospace' }}
         />
-      ) : type === 'single_select' && options ? (
+      ) : (type === 'single_select' || type === 'choice') && options ? (
         <div className="space-y-2">
           {options.map((opt, i) => (
             <button
